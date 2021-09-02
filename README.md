@@ -1,2 +1,2 @@
 # datascience
-# Ziji Zhou Amherst '25
+//Ziji Zhou
