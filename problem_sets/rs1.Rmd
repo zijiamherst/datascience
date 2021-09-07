@@ -171,7 +171,7 @@ Have you been knitting, committing, and pushing the Rmd file?! If not, now's the
 
 
 
-```{r recreation5, fig.width=4.5, fig.height=3.2}
+```{r recreation5, fig.width=5.2, fig.height=3.2}
 data(MedicareCharges)
 
 ChargesNJ <- MedicareCharges %>% 
@@ -198,7 +198,7 @@ p
 
 ## <!-- 2.2 -->Replace `x = drg` with `x = reorder(drg, mean_charge)`, but also remove the `theme()` line.  Now what happens?  What was the purpose of the `theme()` line?  *Hint: You may need to knit the document and look at the pdf to better observe what's happening.*
 
-```{r recreation6, fig.width=4.5, fig.height=3.2}
+```{r recreation6, fig.width=5.2, fig.height=3.2}
 data(MedicareCharges)
 
 ChargesNJ <- MedicareCharges %>% 
@@ -220,7 +220,7 @@ p <- ggplot(
 p
 ```
 
-
+Without the theme function the x axis of the graph become unreadable with how tight the ticks become. The purpose of theme() helps delegate the visual representation of the legend and of the graph itself, adjusting the size of the x axis.
 <!-- 
 Don't forget to commit and push!
 -->
@@ -228,9 +228,27 @@ Don't forget to commit and push!
 <!-- PROBLEM 3 ---------------------------------------------------------------->
 # <!-- 3 -->**Historical baby names** As you read through (or, even better, as you code along with...) the extended example on historical baby names in Section 3.3.1, write down two questions you have about any of the R code used in that example.  Your questions could be about what a specific part of the code---ggplot or not---is actually doing, or a more general question about any of the commands used. Please be thoughtful about your questions; we will use them (anonymously) in an exercise in class this week.
 
-1.
+1.What does the xlab(NULL) do for the line of people born that year?
 
-2.
+2.How does the tribble formatting and visual theme functions work in order to make the context text make more sense?
+
+```{r recreation7, fig.width=5.2, fig.height=3.2}
+library(babynames)
+BabynamesDist <- make_babynames_dist()
+
+joseph <- BabynamesDist %>%
+  filter(name == "Joseph" & sex == "M")
+name_plot <- ggplot(data = joseph, aes(x = year)) + 
+    geom_col(
+       aes(y = count_thousands * alive_prob), 
+       fill = "#b2d7e9", 
+       color = "white",
+       size = 0.1) +
+    geom_line(aes(y = count_thousands), size = 2) +
+    ylab("Number of People (thousands)") + 
+    xlab(NULL)
+name_plot 
+```
 
 \clearpage
 <!-- You are not required to code along with the section, but this is good practice that is strongly encouraged. Here's a code chunk to get you started...
