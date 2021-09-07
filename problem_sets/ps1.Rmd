@@ -1,0 +1,166 @@
+---
+title: "Practice Set 1"
+author: "Your Name"
+date: "Due by 10pm ET on Friday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Problem \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Homework}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Homework
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Practice Set Information** {-}
+
+During the week, you will get further practice with the material by working through the Practice Set, a set of problems designed to give you practice beyond the examples produced in the text. 
+
+You may work through these problems with peers, but all work must be completed by you (see the Honor Code in the syllabus) and you must indicate who you worked with below. 
+
+Even then, the best approach here is to try the problems on your own before discussing them with peers, and then write your final solutions yourself.
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. You should also *push* your commits back onto GitHub occasionally (you can do this after each commit). 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+
+\clearpage
+# **Practicing Academic Integrity** {-}
+
+If you worked with others or used resources outside of provided course material (notes, textbook, etc) to complete this assignment, please acknowledge them below using a bulleted list. 
+\normalfont
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+```{r setup, include = FALSE}
+# load packages
+library(mdsr)
+library(tidyverse)
+library(kableExtra)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!-- PROBLEM 1 ---------------------------------------------------------------->
+
+# <!-- 1 -->**MDSR Exercise 2.5 (modified)** Consider the data graphic for [Career Paths at Williams College](https://web.williams.edu/Mathematics/devadoss/careerpath.html).  Focus on the graphic under the "Major-Career" tab.
+
+## <!-- 1.1-->What story does the data graphic tell?  What is the main message that you take away from it?
+
+
+
+
+## <!-- 1.2-->Can the data graphic be described in terms of the taxonomy presented in this chapter?  If so, list the visual cues, coordinate system, and scale(s).  If not, describe the feature of this data graphic that lies outside of that taxonomy.
+
+
+
+
+## <!-- 1.3 -->Critique and/or praise the visualization choices made by the designer.  Do they work? Are they misleading?  Thought-provoking?  Brilliant?  Are there things that you would have done differently?  Justify your response.
+
+
+
+
+# <!-- 2 -->**Spot the Error** Explain why the following command does not color the data points blue, then write down (in a new code chunk) the command that will turn the points blue. Use the help file for the dataset to additionally update the graphic with informative axis labels and a title.
+```{r, fig.height = 2.5, fig.width = 4.5, fig.align = 'center'}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+```
+
+
+
+
+# <!-- 3 -->**MDSR Exercise 3.6 (modified)** Use the `MLB_teams` data in the **mdsr** package to create an informative data graphic that illustrates the relationship between winning percentage and payroll in context. What story does your graph tell?
+
+
+
+
+```{r}
+
+```
+
+# <!-- 4 -->**MDSR Exercise 3.10 (modified)** Using data from the **nasaweather** package, use the `geom_path()` function to plot the path of each tropical storm in the `storms` data table (use variables `lat` (y-axis!) and `long` (x-axis!)).  Use color to distinguish the storms from one another, and use facetting to plot each `year` in its own panel.  Remove the legend of storm names/colors by adding `scale_color_discrete(guide = "none")`.  
+<!--
+Note: Be sure you load the **nasaweather** package and use the `storms` dataset from that package! 
+
+It is best practice to load all packages in the first `setup` code chunk of a document.
+-->
+```{r}
+
+```
+
+
+<!--
+Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload your pdf to Gradescope.
+-->
