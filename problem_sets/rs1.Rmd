@@ -1,6 +1,6 @@
 ---
 title: "Reading Set 1"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Monday"
 urlcolor: blue
 linkcolor: blue
@@ -80,6 +80,7 @@ You can resubmit your work as many times as you want before the deadline, so you
 # load packages
 library(mdsr)
 library(babynames)
+library(ggplot2)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -101,12 +102,12 @@ options(scipen = 1, knitr.kable.NA = '')
 ## <!-- 1.1 -->Figure 3.3 in Section 3.1.1 shows a scatterplot that uses both location and label as aesthetics.  Reproduce this figure.  *Hint: you'll need to define 'g' based on code from earlier in Section 3.1.1. Also, make sure you load packages in the `setup` chunk as needed!*
 
 <!-- Remember to adjust the figure size in the pdf. I typically start with fig.width = 3.6, fig.height = 2.4 and adjust from there. We do not want figures to take up half a page or more unless needed to distinguish features, e.g. in a large faceted plot. -->
-```{r}
+```{r recreation, fig.width=4.5, fig.height=3.2}
 data(CIACountries)
 
 # define the plot object
-g <- 
-
+g <- ggplot(data = CIACountries, aes(x=educ,y=gdp))
+g = g + geom_text(aes(label = country, color = net_users), size = 3)
 # print the plot
 g
 ```
@@ -145,7 +146,7 @@ Have you been knitting, committing, and pushing the Rmd file?! If not, now's the
 
 
 
-```{r}
+```{r, eval=FALSE}
 data(MedicareCharges)
 ChargesNJ <- MedicareCharges %>% 
   ungroup() %>%
@@ -181,7 +182,7 @@ Don't forget to commit and push!
 \clearpage
 <!-- You are not required to code along with the section, but this is good practice that is strongly encouraged. Here's a code chunk to get you started...
 -->
-```{r}
+```{r,eval=FALSE}
 BabynamesDist <- make_babynames_dist()
 
 joseph <- BabynamesDist %>%
