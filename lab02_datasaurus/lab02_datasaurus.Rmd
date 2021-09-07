@@ -134,12 +134,14 @@ To find out more about the dataset, type the following in your Console: `?datasa
 # <!-- 1 -->**Understanding the data** It is tempting to jump into visualization and analysis (much like we did on the first day), but it is critical as a statistician that we first understand the context and structure of the data. 
 
 ## <!-- 1.1 -->Based on the help file, how many rows and how many columns are in the data frame?
-
+There are 3 columns with 1846 rows.
 
 
 
 ## <!-- 1.2 -->Based on the help file, what variables are included in the data frame? Use Markdown formatting to provide a bulleted list, with each variable typeset in monotype font.
-
+- 'dataset': describes the origin of the dataset
+- 'x': x-value of dataset
+- 'y': y-value of dataset
 
 
 
@@ -149,7 +151,7 @@ To find out more about the dataset, type the following in your Console: `?datasa
 ```{r dataset-freq}
 datasaurus_dozen %>% 
   count(dataset) %>% 
-  kable(booktabs = TRUE) 
+  kable(booktabs = TRUE,kable_styling(latex_options = "hold_position")) 
 ```
 
 
