@@ -81,6 +81,7 @@ You can resubmit your work as many times as you want before the deadline, so you
 library(mdsr)
 library(babynames)
 library(ggplot2)
+library(tidyverse)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -170,25 +171,53 @@ Have you been knitting, committing, and pushing the Rmd file?! If not, now's the
 
 
 
-```{r, eval=FALSE}
+```{r recreation5, fig.width=4.5, fig.height=3.2}
 data(MedicareCharges)
+
 ChargesNJ <- MedicareCharges %>% 
   ungroup() %>%
   filter(stateProvider == "NJ")
 
 # create the plot object
-p <- 
+p <- ggplot(
+  data = ChargesNJ, 
+  aes(x = drg, y = mean_charge)
+) +
+  geom_col(fill = "gray") +
+  ylab("Statewide Average Charges ($)") + 
+  xlab("Medical Procedure (DRG)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(0.5)))
+
   
   
 # print the plot
 p
 ```
 
+"Reorder" rearranges the different drugs by the mean charge of it. When leaving it as x = drg, the graph is no longer sorted in terms of numbers.
 
 ## <!-- 2.2 -->Replace `x = drg` with `x = reorder(drg, mean_charge)`, but also remove the `theme()` line.  Now what happens?  What was the purpose of the `theme()` line?  *Hint: You may need to knit the document and look at the pdf to better observe what's happening.*
 
-```{r}
+```{r recreation6, fig.width=4.5, fig.height=3.2}
+data(MedicareCharges)
 
+ChargesNJ <- MedicareCharges %>% 
+  ungroup() %>%
+  filter(stateProvider == "NJ")
+
+# create the plot object
+p <- ggplot(
+  data = ChargesNJ, 
+  aes(x = drg, y = mean_charge)
+) +
+  geom_col(fill = "gray") +
+  ylab("Statewide Average Charges ($)") + 
+  xlab("Medical Procedure (DRG)")
+
+  
+  
+# print the plot
+p
 ```
 
 
