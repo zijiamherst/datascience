@@ -188,7 +188,18 @@ KNIT & COMMIT & PUSH: "Add parts 1 and 2 answers"
 # <!-- 3 -->**Line types** The default line type for `geom_smooth()` is a solid line.  You can change the line type and thickness using the `lty = ` and `size = ` options, respectively, within the `geom_smooth()` function.  Copy and paste the code from your last figure in Part 2.3. Update the figure using the `aes()` function within `geom_smooth()` so that each country has a different line type. Can you also figure out how to clean up the legend?
 
 ```{r country-lines, fig.width = 6.5, fig.height = 3}
-
+ggplot(data = unvotes_hr, mapping = aes(x = year, y = percent_yes, 
+                                        color = country)) +
+  geom_point(aes(shape = country)) +
+  geom_smooth(method = "loess", se = FALSE, aes(lty = country)) +
+  labs(title = "Percentage of 'Yes' votes  on human rights issues",
+       subtitle = "UN General Assembly, 1946 to 2019",
+       y = "% Yes",
+       x = "Year",
+       color = "Country",
+       shape = "Country",
+       lty = "Country")
+```
 ```
 
 <!--
