@@ -236,12 +236,27 @@ TIME TO KNIT & COMMIT: "Add answers to 2.3, 2.4"
 
 ## <!-- 2.5 -->Now calculate the correlation coefficient between `x` and `y` for the `circle` dataset. You can (and should) reuse code we introduced above, just replace the dataset name with the desired dataset. How does this value compare to the correlation coefficients from the other two datasets?
 
+```{r circle-cor}
+# Start with `datasaurus_dozen`
+# Filter for observations where `dataset == "dino"`
+# Store the resulting filtered data frame as a new data frame called `dino_data`
+circle_data <- datasaurus_dozen %>%
+  filter(dataset == "circle")
 
-
+# Compute correlation between `x` and `y` for `dino` dataset with label `r`
+circle_data %>%
+  summarize(r = cor(x, y))
+```
+Again a very similar r value of slight negative correlation. The most negative of the three datasets so far.
 
 ## <!-- 2.6 -->Plot `y` versus `x` for the `circle` dataset.  Does the plot look the same as either plot from the other two datasets?
 
+```{r circle-plot, eval = TRUE, fig.width = 2.5, fig.height = 2}
+ggplot(data = circle_data, mapping = aes(x = x, y = y)) +
+  geom_point()
+```
 
+The plot looks different, I wonder why the r value is more negative than the previous two.
 
 
 <!-- 
@@ -252,7 +267,7 @@ TIME TO KNIT & COMMIT: "Add answers to 2.5, 2.6"
 # <!-- 3 -->**Making things more efficient** The previous problem had a lot of repetition. To make things more efficient, we can plot all the datasets at one using *facets*, and we can compute all the correlations at once using the `group_by()` function. The code is provided below.
 
 <!-- set `eval = TRUE` and adjust the figure dimensions so things don't look smushed in the pdf -->
-```{r plots-cors, eval = FALSE}
+```{r plots-cors, eval = TRUE,fig.height=8,fig.width=4}
 # Scatterplots by dataset
 ggplot(datasaurus_dozen, aes(x = x, y = y, color = dataset))+
   geom_point()+
@@ -268,12 +283,12 @@ datasaurus_dozen %>%
 
 ## <!-- 3.1 -->What do you notice?  Is the correlation coefficient an appropriate summary for any of these datasets?  Why or why not?
 
-
+All of the r values are very similar, telling almost nothing about the shape of the dataset. None of the correlation datasets are an appropriate summary because of of the lack of context for the data.
 
 
 ## <!-- 3.2 -->What do you think `ncol = 3` does in the code above? What about `digits = 3`?
 
-
+"ncol = 3" likely dictates 3 columns for the graphs while "digits = 3" dictates the truncuation of the decimals.
 
 
 <!-- 
