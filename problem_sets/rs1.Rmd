@@ -102,7 +102,7 @@ options(scipen = 1, knitr.kable.NA = '')
 ## <!-- 1.1 -->Figure 3.3 in Section 3.1.1 shows a scatterplot that uses both location and label as aesthetics.  Reproduce this figure.  *Hint: you'll need to define 'g' based on code from earlier in Section 3.1.1. Also, make sure you load packages in the `setup` chunk as needed!*
 
 <!-- Remember to adjust the figure size in the pdf. I typically start with fig.width = 3.6, fig.height = 2.4 and adjust from there. We do not want figures to take up half a page or more unless needed to distinguish features, e.g. in a large faceted plot. -->
-```{r recreation, fig.width=4.5, fig.height=3.2}
+```{r recreation1, fig.width=4.5, fig.height=3.2}
 data(CIACountries)
 
 # define the plot object
@@ -115,22 +115,46 @@ g
 
 ## <!-- 1.2 -->Now, update the plot with more informative labels.  Label the x-axis "% of GDP spent on education" and the y-axis "Gross Domestic Product (GDP)".  *Hint: see Section 3.2.1 for an example of one way to label the axes.*
 
-```{r}
+```{r recreation2, fig.width=4.5, fig.height=3.2}
+data(CIACountries)
 
+# define the plot object
+g <- ggplot(data = CIACountries, aes(x=educ,y=gdp))
+g = g + geom_text(aes(label = country, color = net_users), size = 3) + 
+  labs(x = "% of GDP spent on education", y = "Gross Domestic Product (GDP)")
+# print the plot
+g
 ```
 
 
 ## <!-- 1.3 -->Next, move the legend so that it's located on the top of the plot as opposed to the right of the plot.  *Hint: see Section 3.1.4 for an example on how to change the legend position.*
 
-```{r}
+```{r recreation3, fig.width=4.5, fig.height=3.2}
+data(CIACountries)
 
+# define the plot object
+g <- ggplot(data = CIACountries, aes(x=educ,y=gdp))
+g = g + geom_text(aes(label = country, color = net_users), size = 3) + 
+  labs(x = "% of GDP spent on education", y = "Gross Domestic Product (GDP)") +
+  theme(legend.position = "top")
+# print the plot
+g
 ```
 
 
 ## <!-- 1.4 -->Lastly, Section 3.1.2 discusses *scale*, and demonstrates how to display GDP on a logarithmic scale to better discern differences in GDP.  Update the figure so GDP is on a log10 scale. 
 
-```{r}
+```{r recreation4, fig.width=4.5, fig.height=3.2}
+data(CIACountries)
 
+# define the plot object
+g <- ggplot(data = CIACountries, aes(x=educ,y=gdp))
+g = g + geom_text(aes(label = country, color = net_users), size = 3) + 
+  coord_trans(y = "log10") +
+  labs(x = "% of GDP spent on education", y = "Gross Domestic Product (GDP)") +
+  theme(legend.position = "top")
+# print the plot
+g
 ```
 
 
