@@ -1,0 +1,112 @@
+---
+title: "YOUR TITLE HERE"
+subtitle: "SAT 231: Calendar Query"
+author: "YOUR NAME HERE"
+date: "Last updated \\today"
+output: pdf_document
+---
+
+```{r setup, include = FALSE}
+# load packages
+
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme 
+# theme_set(theme_classic()) # uncomment this line if needed
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!--
+Please remove my comments from the code chunks and customize the code chunks on your own, including chunk labels and options and code documentation.
+
+You can leave my markdown comments for guidance in writing your report.
+-->
+
+# YOUR SECTION HEADER <!-- (e.g., How do I spend my time?) -->
+
+```{r}
+# Data import and preliminary wrangling
+```
+
+<!--
+Describe your question(s) here.  Briefly describe your data collection process, including how you defined variables of interest.
+-->
+
+
+
+
+<!--
+Describe what information is conveyed through data visualization #1 (that you'll create below) here.
+-->
+
+
+
+
+```{r}
+# Code for data visualization #1
+# Be sure to provide meaningful title and axes labels 
+```
+
+<!--
+Describe what information is conveyed through data visualization #2 (that you'll create below) here.
+-->
+
+
+
+```{r}
+# Code for data visualization #2
+# Be sure to provide meaningful title and axes labels 
+```
+
+<!--
+Describe what information is conveyed through the table (that you'll create below) here.
+
+For nicer tables, check out:
+
+* the kable function in the knitr package + the kableExtra package  
+  https://bookdown.org/yihui/rmarkdown-cookbook/kable.html 
+  https://bookdown.org/yihui/rmarkdown-cookbook/kableextra.html
+
+or 
+
+* the xtable package
+  https://cran.r-project.org/web/packages/xtable/vignettes/xtableGallery.pdf
+-->
+
+
+
+```{r, results = 'asis'}
+# Code for table
+```
+
+<!--
+To conclude, briefly summarize what you found in response to the questions posed here.
+-->
+
+
+\newpage
+# Reflection
+
+<!--
+Write your one-page reflection here in paragraph form.  In particular, address:
+
+* What difficulties in the data collection and analysis process did you encounter?  Identify two of your main hurdles in gathering accurate data.
+
+* What implications does that have for future data collection and/or analysis projects? 
+
+* How much data do you think you'd need to collect in order to answer your question(s) of interest? Would it be hard to collect that data? Why or why not?
+
+* As someone who provides data, what expectations do you have when you give your data (e.g. to Facebook, Google, MapMyRun, etc.)?  
+
+* As someone who analyzes others' data, what ethical responsibilities do you have?
+-->
+
+
