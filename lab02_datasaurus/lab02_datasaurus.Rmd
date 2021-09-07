@@ -1,6 +1,6 @@
 ---
 title: "Lab 2: Datasaurus"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET Friday"
 urlcolor: blue
 linkcolor: blue
