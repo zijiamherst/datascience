@@ -22,15 +22,18 @@ Feel free to expand upon the basic question of "How do I spend my time?" or expl
 **Copy and paste these questions into a new issue in your private repo. Respond to these questions by 10pm ET on Thursday, September 9. I will respond with my approval or comments for revision.**
 
 ## Identify what questions you are planning to focus on
-
+How much time I spend listening to music and how that overlaps with my productivity and activity concurrent to it?
+Time spent doing each type of schoolwork (reading, practice problems, procrastination).
+How many times I start distracting myself during times of work (biting nails, phone pickup, talk to others)?
 
 
 ## Describe two visualizations (type of plot, coordinates, visual cues, etc.) you imagine creating that help address your questions of interest
+Utilizing a scatterplot would be one of the options. The x axis could represent the date and y axis the categories of activity. The size of circle can represent the time spent and color can be a gradient where one end is productive and not very distracted and the other end of the gradient can be very distracted. 
 
-
+A bar graph could help represent the overlapping time spent. The x axis would be the type of work and y axis would be the time spent during that activity with the dates split up as facets. The colors would represent the varying amount of time spent on distractions as well as true productive work. The graph would also be layered with dots representing the small individual distractions such as biting nails/socializing/picking up my phone.
 
 
 ## Describe one table (what will the rows be?  what will the columns be?) you imagine creating that helps address your questions of interest
-
+The first row will be the intended activity ie doing homework/reading. Each column would list out the level of productivity and listening habits during that activity including specific items such as time spent working, time spent procrastinating, numbers of times picked up phone etc.
 
 
