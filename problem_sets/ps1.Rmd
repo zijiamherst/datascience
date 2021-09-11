@@ -98,6 +98,7 @@ Source(s) and corresponding problem(s)
 library(mdsr)
 library(tidyverse)
 library(kableExtra)
+library(nasaweather)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -159,11 +160,16 @@ baseballdata = MLB_teams
 ggplot(data = baseballdata, mapping = aes(x = payroll/1000000, y = W/(W+L))) +
   geom_point() + 
   geom_smooth(method = "loess" , se = FALSE) + 
+  scale_x_continuous(n.breaks = 10) +
   labs(title = "MLB Payroll and Win%",
+       subtitle = "Major League Baseball teams from 2008-2014",
        x = "Payroll in million dollars",
-       y = "Win%")
+       y = "Win%") 
+  
 
 ```
+
+The graph shows an obvious correlation of payroll and win percentage. However the data around the median payroll and win% sees much less correlation. Only when the payroll becomes exceeding below or above average does it reflect heavily on results.
 
 # <!-- 4 -->**MDSR Exercise 3.10 (modified)** Using data from the **nasaweather** package, use the `geom_path()` function to plot the path of each tropical storm in the `storms` data table (use variables `lat` (y-axis!) and `long` (x-axis!)).  Use color to distinguish the storms from one another, and use facetting to plot each `year` in its own panel.  Remove the legend of storm names/colors by adding `scale_color_discrete(guide = "none")`.  
 <!--
@@ -171,7 +177,17 @@ Note: Be sure you load the **nasaweather** package and use the `storms` dataset 
 
 It is best practice to load all packages in the first `setup` code chunk of a document.
 -->
-```{r}
+```{r storms, fig.height = 4, fig.width = 5.5, fig.align = 'center'}
+ggplot(data = nasaweather::storms, mapping = aes(x = long, y = lat)) + 
+        geom_path(aes(color = name)) +
+        scale_color_discrete(guide = "none") +
+        facet_wrap(~year, nrow = 2) + 
+        labs(title = "Storm Paths",
+             subtitle = "Tracked by NASA 1995-2000",
+             x = "Longitude",
+             y = "Latitude")
+  
+
 
 ```
 
