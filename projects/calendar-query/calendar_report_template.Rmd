@@ -8,7 +8,9 @@ output: pdf_document
 
 ```{r setup, include = FALSE}
 # load packages
-
+library(tidyverse)
+library(lubridate)
+library(ical)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -18,7 +20,7 @@ knitr::opts_chunk$set(tidy = F, # display code as typed
                       comment = "\t") 
 
 # set black & white default plot theme 
-# theme_set(theme_classic()) # uncomment this line if needed
+# theme_set(theme_classic()) # uncomment this line if desired
 
 # improve digit and NA display 
 options(scipen = 1, knitr.kable.NA = '')
@@ -28,12 +30,41 @@ options(scipen = 1, knitr.kable.NA = '')
 Please remove my comments from the code chunks and customize the code chunks on your own, including chunk labels and options and code documentation.
 
 You can leave my markdown comments for guidance in writing your report.
+
+Please rename the headings. 
+You may add subheadings as desired to break up the report. 
 -->
 
-# YOUR SECTION HEADER <!-- (e.g., How do I spend my time?) -->
+# YOUR REPORT HEADING <!-- (e.g., How do I spend my time?) -->
 
-```{r}
+<!--
+The code below is provided as a starting point for importing an `ics` file into R as a dataframe, doing some initial wrangling, and adding up the time spent on each activity. You are not required to use this code, so delete or modify it as you see fit. 
+
+If you are using the code, be sure to update the capitalized parts with the relevant path to where your `ics` file is located, and set `eval = TRUE`.
+
+As a reminder here's the link for exporting a Google calendar to ics (if on a Mac, you can hold cmd + click to open the page):
+https://support.google.com/calendar/answer/37111?hl=en&ref_topic=10509946
+-->
+```{r, eval = FALSE}
 # Data import and preliminary wrangling
+calendar_data <- "PATH/CALENDAR_FILENAME.ics" %>% 
+  # Use ical package to import into R
+  ical_parse_df() %>% 
+  # Convert to "tibble" data frame format
+  as_tibble() %>% 
+  mutate(
+    # Use lubridate package to wrangle dates and times
+    start_datetime = with_tz(start, tzone = "America/New_York"),
+    end_datetime = with_tz(end, tzone = "America/New_York"),
+    duration_sec = end_datetime - start_datetime,
+    date = floor_date(start_datetime, unit = "day"),
+    # Convert calendar entry to all lowercase and rename
+    activity = tolower(summary))
+
+# Compute total duration of time for each day & activity
+activities <- calendar_data %>% 
+  group_by(date, activity) %>%
+  summarize(duration_sec = sum(duration_sec))
 ```
 
 <!--
@@ -93,7 +124,7 @@ To conclude, briefly summarize what you found in response to the questions posed
 
 
 \newpage
-# Reflection
+# YOUR REFLECTION HEADING <!-- e.g., Reflection -->
 
 <!--
 Write your one-page reflection here in paragraph form.  In particular, address:
