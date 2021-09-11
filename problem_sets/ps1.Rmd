@@ -1,6 +1,6 @@
 ---
 title: "Practice Set 1"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Friday"
 urlcolor: blue
 linkcolor: blue
@@ -119,17 +119,16 @@ options(scipen = 1, knitr.kable.NA = '')
 
 ## <!-- 1.1-->What story does the data graphic tell?  What is the main message that you take away from it?
 
-
+The graph tells the popularity of each major and industry as well as the distribution of each major into each industry and vice versa. There are obvious distributions of majors and industries (ie chem/bio into health profession) but many of the less career focused majors branch out into a large variety of professions. For example English/Literature had a very even spread among literally every industry.
 
 
 ## <!-- 1.2-->Can the data graphic be described in terms of the taxonomy presented in this chapter?  If so, list the visual cues, coordinate system, and scale(s).  If not, describe the feature of this data graphic that lies outside of that taxonomy.
 
-
-
+While i do not believe the taxonomy of this chapter covers the exact nature of the visualization given to us. The closest example would be of 3.2.4 Networks though it doesn't go in depth with the concept. The main visual cues and variables in this graph are the two variables of major and industry. The visual cues utilized through color for majors, size for popularity of major and industry, and line thickness for proportion of the correlation between each major and profession. The visualization of correlation can be described through the taxonomy in this chapter, though very inefficiently due to the qualitative nature of both major and industry. However, for example a faceted bar bar graph for each major and distribution of industry could help display the same data. The circular layout of the graph isn't covered in this chapter, as well as a plot fitting for the amount of qualitative information in this dataset.
 
 ## <!-- 1.3 -->Critique and/or praise the visualization choices made by the designer.  Do they work? Are they misleading?  Thought-provoking?  Brilliant?  Are there things that you would have done differently?  Justify your response.
 
-
+The graphic is a very efficient and clean cut presentation of the data. It is however extremely cluttered in the compilation graph with it very difficult to discern the individual lines and too messy to easily see a pattern of data. However, the interactivity of the graph helps with the cluster of the original graphic, helping narrow down and clarify the data presented. I found this graphic very interesting in mostly showing the wide variety of industries that the humanities feed off into. I thought it was very thought provoking and leads to many more questions about the connections of industries and majors that are seemingly disjointed, for example the few art majors that went into law or medicine. The colors in this graph could be more aesthetic, with the compilation leaving not the prettiest of pictures. I also would've perhaps created a lower cap for the compilation in order to declutter the graph and more easily see the patterns of data with everything present.
 
 
 # <!-- 2 -->**Spot the Error** Explain why the following command does not color the data points blue, then write down (in a new code chunk) the command that will turn the points blue. Use the help file for the dataset to additionally update the graphic with informative axis labels and a title.
@@ -138,7 +137,15 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
 ```
 
+The command placed the `color = "blue"` argument inside the `aes()` function, leading to the program attempting to pair up the color of the dot with the `"blue"` data inside mpg, which doesn't exist, leading to the graph grouping all the points as `"blue"` and coloring it with a default red.
 
+```{r, fig.height = 2.5, fig.width = 4.6, fig.align = 'center'}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue") + 
+  labs(title = "Highway Fuel Efficiency and Engine Displacement",
+       x = "Engine Displacement (Litre)",
+       y = "Highway Miles per Gallon")
+```
 
 
 # <!-- 3 -->**MDSR Exercise 3.6 (modified)** Use the `MLB_teams` data in the **mdsr** package to create an informative data graphic that illustrates the relationship between winning percentage and payroll in context. What story does your graph tell?
@@ -146,7 +153,15 @@ ggplot(data = mpg) +
 
 
 
-```{r}
+```{r baseball, fig.height = 4, fig.width = 5.5, fig.align = 'center'}
+baseballdata = MLB_teams
+
+ggplot(data = baseballdata, mapping = aes(x = payroll/1000000, y = W/(W+L))) +
+  geom_point() + 
+  geom_smooth(method = "loess" , se = FALSE) + 
+  labs(title = "MLB Payroll and Win%",
+       x = "Payroll in million dollars",
+       y = "Win%")
 
 ```
 
