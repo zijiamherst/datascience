@@ -200,7 +200,6 @@ ggplot(data = unvotes_hr, mapping = aes(x = year, y = percent_yes,
        shape = "Country",
        lty = "Country")
 ```
-```
 
 <!--
 KNIT & COMMIT & PUSH: "Add part 3 answers"
@@ -212,12 +211,21 @@ KNIT & COMMIT & PUSH: "Add part 3 answers"
 
 ## <!-- 4.1 -->**Color Brewer**: Copy and paste the code from your last figure created in Part 3. Add a layer `scale_color_brewer()` before the `labs()` layer (don't forget to add a plus sign).  What happens?
 
-
-
-
 ```{r brewer, fig.width = 6.5, fig.height = 3}
-
+ggplot(data = unvotes_hr, mapping = aes(x = year, y = percent_yes, 
+                                        color = country)) +
+  geom_point(aes(shape = country)) +
+  geom_smooth(method = "loess", se = FALSE, aes(lty = country)) +
+  labs(title = "Percentage of 'Yes' votes  on human rights issues",
+       subtitle = "UN General Assembly, 1946 to 2019",
+       y = "% Yes",
+       x = "Year",
+       color = "Country",
+       shape = "Country",
+       lty = "Country") + 
+  scale_color_brewer()
 ```
+
 
 ## <!-- 4.2 -->Within the `scale_color_brewer()` function, add the options `type = "div"` and `palette = 1`.  Is this a good color scheme for this figure?  Why or why not? (Can you think of a figure for which this would be a good color scheme?)
 
