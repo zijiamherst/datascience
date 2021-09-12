@@ -1,6 +1,6 @@
 ---
 title: "Reading Set 2"
-author: "Your Name"
+author: "Ziji"
 date: "Due by 10pm ET on Monday"
 urlcolor: blue
 linkcolor: blue
@@ -81,6 +81,7 @@ You can resubmit your work as many times as you want before the deadline, so you
 library(tidyverse)
 library(mdsr)
 library(kableExtra)
+library(nycflights13)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -105,7 +106,9 @@ options(scipen = 1, knitr.kable.NA = '')
 Reminder: make sure you've loaded the **nycflights13** package!
 -->
 ```{r}
-
+flights_joined <- flights %>%
+  inner_join(airlines, by = c("carrier" = "carrier"))
+glimpse(flights_joined)
 ```
 
 
@@ -115,7 +118,11 @@ Reminder: make sure you've loaded the **nycflights13** package!
 Hint: see examples in Section 4.1 for subsetting datasets and creating new variables.  
 -->
 ```{r}
-
+flights_shorts <- flights_joined %>%
+  filter(distance <= 500) %>%
+  select(name, flight, arr_delay, distance) %>% 
+  rename(distance_km = distance)
+glimpse(flights_shorts)
 ```
 
 
@@ -128,7 +135,12 @@ Getting NAs for `avg_arr_delay`?
 You can drop all the cases that contain missing observations with the **tidyr** function `drop_na()` before grouping.
 -->
 ```{r}
-
+delay_summary <- flights_joined %>%
+  drop_na() %>%
+  group_by(carrier) %>%
+  filter(distance <= 500) %>%
+  summarise(N = n(), avg_arr_delay = mean(arr_delay), avg_dist_km = mean(distance))
+delay_summary
 ```
 
 
@@ -141,7 +153,9 @@ kable(booktabs = TRUE, digits = c(0, 0, 0, 1))
 -->
 
 ```{r}
-
+delay_summary %>%
+  rename("Airline" = carrier, "Total flights under 500 km" = N, "Average arrival delay (mins)" = avg_arr_delay, "Average distance (km)" = avg_dist_km) %>%
+  kable(booktabs = TRUE, digits = c(0,0,0,1))
 ```
 
 
