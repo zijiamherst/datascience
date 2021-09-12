@@ -1,0 +1,200 @@
+---
+title: "Reading Set 2"
+author: "Your Name"
+date: "Due by 10pm ET on Monday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Problem \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Homework}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Homework
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Reading Set Information** {-}
+
+A more thorough reading and light practice of the textbook reading prior to class allows us to jump into things more quickly in class and dive deeper into topics. As you actively read the textbook, you will work through the Reading Sets to help you engage with the new concepts and skills, often by replicating on your own the examples covered in the book. 
+
+*These should be completed on your own without help from your peers*. While most of our work in this class will be collaborative, it is important each individual completes the active readings.  The problems should be straightforward based on the textbook readings, but if you have any questions, feel free to ask me!
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. 
+
+5. You should occasionally *push* the updated version of the .Rmd file back onto GitHub. When you are ready to push, you can click on the Git pane and then click **Push**. You can also do this after each commit in RStudio by clicking **Push** in the top right of the *Commit* pop-up window. 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" (it's okay to leave out the date if you don't need it) before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+\normalfont
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(mdsr)
+library(kableExtra)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!-- PROBLEM 1 ---------------------------------------------------------------->
+# <!-- 1 -->**NYC Flights** In Section 5.1, the `flights` and `carrier` tables within the `nycflights13` package are joined together. 
+
+## <!-- 1.1 -->Recreate the `flights_joined` dataset from Section 5.1, being sure to *glimpse* the data in the Console to verify the join worked.
+
+<!--
+Reminder: make sure you've loaded the **nycflights13** package!
+-->
+```{r}
+
+```
+
+
+## <!-- 1.2 -->Now, starting from `flights_joined`, create a new dataset `flights_short` that **(1)** creates a new variable, `distance_km`, which is distance in kilometers (note that 1 mile is about 1.6 kilometers); **(2)** keeps only the variables: `name`, `flight`, `arr_delay`, and `distance_km`; and **(3)** keeps only observations where the distance is less than 500 kilometers.
+
+<!--
+Hint: see examples in Section 4.1 for subsetting datasets and creating new variables.  
+-->
+```{r}
+
+```
+
+
+
+## <!-- 1.3 -->Using the functions introduced in Section 4.1.4, compute the number of flights (call this `N`), the average arrival delay (call this `avg_arr_delay`), and the average distance in kilometers (call this `avg_dist_km`) among these flights with distances less than 500 km (i.e. working off of `flights_short`), grouping by the carrier name. Sort the results in descending order based on `avg_arr_delay`. Save the results in a tibble object called `delay_summary`, and display the table.
+
+<!--
+Getting NAs for `avg_arr_delay`?  
+
+You can drop all the cases that contain missing observations with the **tidyr** function `drop_na()` before grouping.
+-->
+```{r}
+
+```
+
+
+## <!-- 1.4 -->Rename the four columns in the `delay_summary` data table to `Airline`, `"Total flights under 500 km"`, `"Average arrival delay (mins)"` and `"Average distance (km)"`, respectively, then use `kable(booktabs = TRUE, digits = 0)` to make the final table output in the pdf close to publication quality.
+
+<!--
+Note: you can customize the number of digits by column by specifying a vector of digits, with any value for each non-numeric column. For example, see what happens when you specify the following for this example (or switch out for digits of your choosing to see how the output changes):
+
+kable(booktabs = TRUE, digits = c(0, 0, 0, 1))
+-->
+
+```{r}
+
+```
+
+
+<!-- PROBLEM 2 ---------------------------------------------------------------->
+# <!-- 2 -->**Baby names** 
+
+## <!-- 2.1 -->Working with the `babynames` data in the **babynames** package, create a dataset `recent_names` that only includes years 2000 to 2017.
+
+```{r}
+
+```
+
+
+## <!-- 2.2 -->Following the code presented in Section 6.2.5, create a dataset called `recentnames_summary` that summarizes the total number of people in recent history (years 2000 to 2017) with each name, grouped by sex. 
+
+<!--
+Hint: follow either code chunk at the start of Section 6.2.5, but don't filter on any particular names.
+
+Take a look at the summarized dataset using `head()` or `View()` in the Console to verify your code works as expected.
+--> 
+```{r}
+
+```
+
+
+## <!-- 2.3 -->Now, following the fourth and fifth code chunks presented in Section 6.2.5, reshape or *pivot* the summary data from *long* format to *wide* format. Only keep observations where more than 10,000 babies have been named in each sex (`M` and `F`), and find the smaller of the two ratios `M / F` and `F / M` to identify the top three sex-balanced names (and only the top three!).  Save the wide data as `recentnames_balanced_wide`. Display the table.
+
+<!--
+Note: these names will likely be different from the ones found in the text since we limited the dataset to years 2000-2017 and names with greater than 10,000 individuals.)
+-->
+```{r}
+
+```
+
+
+## <!-- 2.4 -->Finally, use `pivot_longer()` to put the dataset back into *long* form. Call this dataset `recentnames_balanced` and display the table. Why are the number of observations in `recentnames_balanced_wide` different from that in `recentnames_summary` from Problem 2.2?
+
+<!--
+Hint: see Section 6.2.3. 
+-->
+
+
+
+```{r}
+
+```
+
+
+<!-- PROBLEM 3 ---------------------------------------------------------------->
+# <!-- 3 -->**Ethical conundrums** Each subsection of Section 8.4 discusses an ethical scenario and ends with one or more questions. Choose one of the scenarios provided to reflect on, and *in one paragraph or less* respond to the question(s) posed with your initial thoughts. Please identify the scenario for reference (e.g. "8.4.1 The chief executive officer").
+
+
+
+<!--
+Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
+-->
