@@ -195,7 +195,7 @@ Note: these names will likely be different from the ones found in the text since
 ```{r}
 recentnames_balanced_wide <- recent_names_summary %>%
   filter(total_people >= 10000) %>%
-  pivot_wider(names_from = sex, values_from = total_people)  %>%
+  pivot_wider(names_from = sex, values_from = total_people, values_fill = 0)  %>%
   mutate(ratio = pmin(F/M , M/F)) %>%
   arrange(desc(ratio))
 recentnames_balanced_wide
@@ -222,7 +222,9 @@ The number of observations are doubled because each name has a row for both the 
 <!-- PROBLEM 3 ---------------------------------------------------------------->
 # <!-- 3 -->**Ethical conundrums** Each subsection of Section 8.4 discusses an ethical scenario and ends with one or more questions. Choose one of the scenarios provided to reflect on, and *in one paragraph or less* respond to the question(s) posed with your initial thoughts. Please identify the scenario for reference (e.g. "8.4.1 The chief executive officer").
 
+8.4.4 Race Prediction
 
+I found this dilemma, along with the "Gaydar" one, to be the most compelling. In a scientific and research mindset this model seems very straightforward, finding a correlation between last names and race through public census. There are plenty of other similar models to this one available open source with less controversy over the subject. The question of morality in this model stems from the sensitive nature of race itself. I personally believe that because of its open source nature, allowing people to analyze the methods used and possible bias in the model, and the source for the data (the US bureau) the model is ethical. The concern for this model is the misuse of it in racist intentions, however it is hard to pin the blame on the model created from public bureau records.
 
 <!--
 Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
