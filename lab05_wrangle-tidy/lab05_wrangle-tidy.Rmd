@@ -1,6 +1,6 @@
 ---
 title: "Lab 5: Wrangle and tidy"
-author: "Solutions"
+author: "Ziji"
 date: "September 14, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -135,9 +135,10 @@ Using the `glimpse()` function, we can see the `coverage` dataset covers the yea
 
 ```{r}
 glimpse(coverage)
-
 glimpse(spending)
 ```
+
+Coverage covers the years 2013-2016, spending covers the years 1991-2014. The "Other Public" column are stored as chr, possible because of the NAs in that column.
 
 ## <!-- 1.5 -->The previous question was intentionally leading---you should have identified some mismatched variable types in the `coverage` dataset. This happened because missing numeric values were recorded as text ("N/A") instead of left empty. Run the code below to fix this problem.
 
@@ -152,13 +153,19 @@ coverage <- coverage %>%
 ## <!-- 1.6 -->If we're interested in the relationship between spending and coverage, we'll only be able to use observations that have information on both.  That is, we won't be using data from years for which we only have spending information or only have coverage information. Remove any variables we won't be using from `coverage` and `spending`.  *Hint*: the `starts_with()` function from the **tidyselect** package (already loaded) could help with efficiency here. 
 
 ```{r}
-
+coverageSmall <- coverage %>%
+  select(starts_with(c("Location","2013","2014")))
+spendingSmall <- spending %>% 
+  select(starts_with(c("Location","2013","2014")))
 ```
 
 ## <!-- 1.7 -->There are 50 states in the United States but 52 observations in the `coverage` and `spending` datasets. The two "bonus" cases contain information about the US as a whole and Washington DC.  Remove these observations from both datasets.
 
 ```{r}
-
+coverageSmall <- coverageSmall %>%
+  filter(Location != c("United States","District of Columbia"))
+spendingSmall <- spendingSmall %>%
+  filter(Location != c("United States","District of Columbia"))
 ```
 
 <!--
@@ -242,22 +249,6 @@ Commit and push! "Add answers to Problem 4"
 ![](img/uninsured_spending_2013.png) 
 
 ```{r, fig.width = 6.5, fig.height = 3.5}
-# Add proportion uninsured to dataset
-healthcare <- healthcare %>%
-  mutate(proportion_uninsured = uninsured / total_population)
-
-healthcare %>% 
-  filter(year == "2013") %>% 
-  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
-             color = region)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", col = "red") + 
-  geom_text(aes(label = abbreviation), nudge_x = 200) +
-  labs(x = "Spending per capita ($)", 
-       y = "Proportion uninsured", 
-       color = "Region",
-       title = "Proportion uninsured vs. healthcare spending",
-       subtitle = "United States in 2013")
 ```
 
 ## <!-- 5.2 -->Next, create an analogous plot (separately) for 2014. Does the relationship between health care spending and the proportion of uninsured change from 2013 to 2014?
@@ -265,35 +256,13 @@ healthcare %>%
 The relationship between healthcare spending and the proportion uninsured looks pretty similar from 2013 to 2014.
 
 ```{r fig.width = 6.5, fig.height = 3.5}
-healthcare %>% 
-  filter(year == "2014") %>% 
-  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
-             color = region)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", col = "red") + 
-  geom_text(aes(label = abbreviation), nudge_x = 200) +
-  labs(x = "Spending per capita ($)", 
-       y = "Proportion uninsured", 
-       color = "Region",
-       title = "Proportion uninsured vs. healthcare spending",
-       subtitle = "United States in 2014")
+
 ```
 
 ## <!-- 5.3 -->Now combine your two plots into one graph, creating one figure that is facetted by year and still colored by region. 
 
 ```{r fig.width = 6.5, fig.height = 6}
-healthcare %>% 
-  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
-             color = region)) + 
-  geom_point() + 
-  geom_smooth(method = "lm", col = "red") + 
-  geom_text(aes(label = abbreviation), nudge_x = 200) +
-  facet_wrap(~ year, nrow = 2) + 
-  labs(x = "Spending per capita ($)", 
-       y = "Proportion uninsured", 
-       color = "Region",
-       title = "Proportion uninsured vs. healthcare spending",
-       subtitle = "United States, 2013-2014")
+
 ```
 
 ## <!-- 5.4 -->Lastly, plot the points for both years on the same plot, this time colored by year instead of region.  Make sure to specify the `group` aesthetic for year as well to get two lines. Which of these three visualizations do you find most helpful for comparing the relationship between 2013 and 2014?  Why?
@@ -301,17 +270,7 @@ healthcare %>%
 I think the last one where both years are on the same figure (colored by year instead of region) is most helpful for comparing the relationship between 2013 and 2014. We lose the visual cue of region, but it’s easiest for me to see the change in the relationship when the points and lines are on the same plot.
 
 ```{r fig.width = 6.5, fig.height = 3.5}
-healthcare %>% 
-  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
-             color = year, group = year)) + 
-  geom_point() + 
-  geom_smooth(method = "lm") + 
-  geom_text(aes(label = abbreviation), nudge_x = 200) +
-  labs(x = "Spending per capita ($)", 
-       y = "Proportion uninsured", 
-       color = "Year",
-       title = "Proportion uninsured vs. healthcare spending",
-       subtitle = "United States, 2013-2014")
+
 ```
 
 <!--
