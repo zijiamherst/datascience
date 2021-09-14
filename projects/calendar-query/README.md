@@ -36,4 +36,15 @@ A bar graph could help represent the overlapping time spent. The x axis would be
 ## Describe one table (what will the rows be?  what will the columns be?) you imagine creating that helps address your questions of interest
 The first row will be the intended activity ie doing homework/reading. Each column would list out the level of productivity and listening habits during that activity including specific items such as time spent working, time spent procrastinating, numbers of times picked up phone etc.
 
+Revision:
+
+In terms of productivity initially I was considering measuring through the amount of distractions during that period of work. However another way I can measure it is by rating it personally on a scale (much more subjective) or based on the amount of work done vs amount of work intended to be done. I think the best method would be to measure it against number of distractions.
+
+For distractions I would log it during the moment every time I go off to do something in a separate spreadsheet.
+
+Upon reflection upon it I think building a layered bar graph with the x axis representing the type of schoolwork/activity and the y axis representing the total time of day spent during that activity during the two weeks of data collection. Using color I will be able to describe the frequency of doing that activity during that time of day over the course of the 14 days. On the second layer could be single points or lines representing each moment of distraction.
+
+A simpler table would consist of rows listing out the types of activity/schoolwork, the two columns indicating total time spent and total number of distractions during this activity.
+
+My main question would be to map out the relationship between productivity and activity and time of day spent doing that activity.
 
