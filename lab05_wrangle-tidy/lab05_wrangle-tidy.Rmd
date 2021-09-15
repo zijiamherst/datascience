@@ -186,12 +186,17 @@ I will need to inner_join() the two datasets by creating a new dataset.
 ## <!-- 2.3 -->Now implement those steps in R, tidying the dataset for plotting.  After the final step, use the `clean_names()` function from the **janitor** package to clean the variable names.  Then, create the scatterplot!
 
 ```{r}
-healthcarespending <- coverageSmall %>%
-  select(ends_with(c("Location","employer"))) %>%
-  inner_join(spendingSmall, by = c("Location" = "Location")) %>%
-  clean_names() %>%
-  pivot_longer(-location ,names_to = "year", values_to = c("spending","insurer") )
-healthcarespending
+coverageSmall
+healthcare <- coverageSmall %>%
+  inner_join(spendingSmall, by = "Location") %>% 
+  pivot_longer(cols = -Location,
+               names_sep = "__",
+               names_to = c("year", "category"),
+               values_to = "amount") %>% 
+  pivot_wider(names_from = "category",
+              values_from = "amount") %>% 
+  clean_names() 
+healthcare
 ```
 
 <!--
@@ -204,20 +209,54 @@ Whew! You just did a lot. Consider committing and pushing now:
 
 ## <!-- 3.1 -->Using the dataset you created in Part 2, rename the `total` column to  `total_population` to make the variable name more informative. Create a scatterplot of employer coverage versus population size (*note*: "plot blank vs blank" means "plot y variable vs x variable"). Then create a second scatterplot of healthcare spending vs. population size. What do you notice?
 
+```{r}
+healthcare <- healthcare %>%
+  rename(total_population = total)
+```
+
 
 
 ```{r}
-
+healthcare %>%
+  ggplot(mapping = aes(x = total_population, y = employer/1000)) +
+  geom_point(aes(color = year)) + 
+  scale_x_continuous(n.breaks = 10) +
+  labs(title = "Employer Coverage versus Population Size",
+       x = "Total population in millions",
+       y = "Employer coverage in thousand dollars")
+healthcare %>%
+  ggplot(mapping = aes(x = total_population/1000000, y = total_health_spending/1000)) +
+  geom_point(aes(color = year)) + 
+  scale_x_continuous(n.breaks = 10) +
+  labs(title = "Total Spending versus Population Size",
+       x = "Total population in millions",
+       y = "Total spending in thousand dollars")
 ```
 
+While both exhibit a positive correlation, employer coverage is much steeper than total health spending and the y axis labelings show that. Employer coverage is from 0 - 15,000k while health spending ranges from 0 - 300k.
 
 ## <!-- 3.2 -->To account for total population, create a scatterplot of spending per capita versus proportion with employer coverage.  This time, *color by region* and *facet by year* (think about what additional steps you need to take to make this happen!).  The total spending column is reported in millions (`1e6`). Therefore, to calculate `spending_per_capita` we will need to adjust for this scaling factor to report it on the original scale (just dollars) and then divide by `total_population`.  Based on this figure, write a brief paragraph describing the relationship between health care spending and coverage in the US.
 
+```{r}
+healthcare <- healthcare %>% 
+  inner_join(state_info, by = c("location" = "location"))
+healthcare
+```
  
 
 ```{r}
+ggplot(data = healthcare) + 
+  geom_point(aes(color = region,
+                 x = employer,
+                 y = (total_health_spending*1000000/total_population))) + 
+  facet_wrap(~year) + 
+  labs(title = "Spending Per Capita versus Proportion With Employer Coverage",
+       x = "Employer Coverage",
+       y = "Total Health Spending Per Capita")
 
 ```
+
+In a lot of states it seems like the employer coverage does not accurately reflect the needs of its citizens. With the left leaning points the data shows that employer coverage is often very low, irregardless the needs of the constituents of their states, high or low. The lack of a clear correlation indicates that employer coverage isn't calculated based on per capital spending.
 
 <!--
 Commit and push! "Add answers to Problem 3"
