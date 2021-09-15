@@ -177,16 +177,21 @@ Have you been committing and pushing? Now's a good time! "Add answers to Part 1"
 
 ## <!-- 2.1 -->First, sketch what the scatterplot should look like on paper or Google jamboard or some other app (what are the axes? what does each point represent?). What does your dataset need to look like in order to create the scatterplot in `ggplot()`? What will each observation (row) in the dataset represent? What variables (columns) do you need?
 
-
-
+I would expect a positive correlation between spending and coverage. The x axis would be coverage and spending on the y axis. Each points would represent a year in a state. The dataset needs to be in one data frame with the locations of both line up and corresponding columns of spending and coverage per year. The rows would have the states. It will also require a new column for the year
+ 
 ## <!-- 2.2 -->What are some of the steps that will need to be taken to get the data in that form?  
 
-
+I will need to inner_join() the two datasets by creating a new dataset.
 
 ## <!-- 2.3 -->Now implement those steps in R, tidying the dataset for plotting.  After the final step, use the `clean_names()` function from the **janitor** package to clean the variable names.  Then, create the scatterplot!
 
 ```{r}
-
+healthcarespending <- coverageSmall %>%
+  select(ends_with(c("Location","employer"))) %>%
+  inner_join(spendingSmall, by = c("Location" = "Location")) %>%
+  clean_names() %>%
+  pivot_longer(-location ,names_to = "year", values_to = c("spending","insurer") )
+healthcarespending
 ```
 
 <!--
