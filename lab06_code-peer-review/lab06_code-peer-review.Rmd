@@ -1,0 +1,142 @@
+---
+title: "Lab 6: Code peer review"
+author: "Ziji Zhou"
+date: "September 16, 2021"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+  # html_document:
+  #   toc: yes
+  #   toc_float: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  - \AtBeginEnvironment{quote}{\sffamily}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Part \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Lab}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Lab
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+library(unvotes)
+library(lubridate)
+library(DT)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+# **1. Pair up!** {-}
+Say Hello!  If you know each other, catch up for a few minutes.  If you don’t know each other, introduce yourselves.  What is your favorite season and why?
+
+Use Campuswire to DM each other your `Lab05-wrangle-tidy.Rmd` file
+
+> Note: *While GitHub makes it easy to share files, I want you to keep your repositories private/unshared with other students.  So, please send each other an email with your `lab03_wrangle-tidy.Rmd` file attached.*
+
+# **2. Review your partners lab with an eye on functionality, readability, and documentation.** {-}
+
+Follow the coding assessment criteria for the calendar assignment to review your partner’s code in terms of *functionality* (does it execute without error? is it reproducible on your machine? does it produce the expected output?), *readability* (is the code easy to read/follow? is the formatting consistent?), and *documentation* (are there any comments?  are they useful/add value/help explain what particular code is doing?). 
+
+Provide comments in *this* `lab06` rmd file. 
+
+It is helpful if you refer to specific line numbers when referring to particular lines of code. It is beneficial to each of you to be critical in your review -- better for your peer to point out errors, disorganization or confusions in your code now, then for the instructor to identify them in the calendar assignment! 
+
+Did your partner go about wrangling the data in the same way you had, or did they use a different "order of operations"?  Did they use any functions you were unfamiliar with? 
+
+Remember to use appropriate formatting for inline code and code chunks.
+
+# **3. Share your comments!** {-}
+
+Knit this document with your comments, and respond to your partner’s DM with this pdf. If you have extra time, discuss your respective strategies for tackling the wrangling with each other.
+\normalfont\clearpage
+
+# **FEEDBACK** {-}
+<!-- begin your feedback below -->
+
+## <!-- 1.6 -->
+```{r}
+coverage1.6 <- coverage1 %>% 
+  select(starts_with("Location"),
+         starts_with("2013"),
+         starts_with("2014"))
+coverage1.6
+spending1.6 <- spending %>%
+  select(starts_with("Location"),
+         starts_with("2013"),
+         starts_with("2014"))
+spending1.6
+```
+
+Could be more efficient by creating a vector `starts_with(c("Location","2013","2014"))`.
+
+Naming conventions are a bit confusing.
+
+## <!-- 2.3 -->
+```{r}
+healthcare <- state_coverage1314 %>%
+  inner_join(state_spending1314, by = "Location") %>% 
+  pivot_longer(cols = -Location,
+               names_sep = "__",
+               names_to = c("year", "category"),
+               values_to = "amount")  %>% 
+  pivot_wider(names_from = "category",
+              values_from = "amount") %>%
+  clean_names()
+
+healthcare
+g <- ggplot(data = healthcare, 
+            aes(x = log(total_health_spending), y = log(employer)))
+g + geom_point() + labs(x = "Log of Total Spending", y = "Log of Employer Coverage")
+```
+
+Labeling x and y as log of total leaves the audience unable to see the actual numbers and becomes hard to interpret. `coord_trans(x = "log", y = "log")` Makes the ticks to be labeled on a log scale.
+
+
+
+

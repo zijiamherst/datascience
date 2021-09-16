@@ -1,6 +1,6 @@
 ---
 title: "Lab 5: Wrangle and tidy"
-author: "Ziji"
+author: "Sara"
 date: "September 14, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -120,6 +120,7 @@ data(state)
 state_info <- data.frame(location = state.name, 
                          abbreviation = state.abb, 
                          region = state.region)
+state_info
 ```
 
 ## <!-- 1.3 -->Run the code below to use `read_csv()` to read in the files containing the healthcare coverage and healthcare spending data. Pay attention to the filepath, making modifications if needed based on your own file organization. 
@@ -138,34 +139,41 @@ glimpse(coverage)
 glimpse(spending)
 ```
 
-Coverage covers the years 2013-2016, spending covers the years 1991-2014. The "Other Public" column are stored as chr, possible because of the NAs in that column.
-
 ## <!-- 1.5 -->The previous question was intentionally leading---you should have identified some mismatched variable types in the `coverage` dataset. This happened because missing numeric values were recorded as text ("N/A") instead of left empty. Run the code below to fix this problem.
 
 ```{r}
-coverage <- coverage %>% 
+coverage1 <- coverage %>% 
   na_if("N/A") %>% 
   mutate(across(.cols = ends_with("Public"), 
                 .fns = as.numeric))
+glimpse(coverage)
 ```
 
 
 ## <!-- 1.6 -->If we're interested in the relationship between spending and coverage, we'll only be able to use observations that have information on both.  That is, we won't be using data from years for which we only have spending information or only have coverage information. Remove any variables we won't be using from `coverage` and `spending`.  *Hint*: the `starts_with()` function from the **tidyselect** package (already loaded) could help with efficiency here. 
 
 ```{r}
-coverageSmall <- coverage %>%
-  select(starts_with(c("Location","2013","2014")))
-spendingSmall <- spending %>% 
-  select(starts_with(c("Location","2013","2014")))
+coverage1.6 <- coverage1 %>% 
+  select(starts_with("Location"),
+         starts_with("2013"),
+         starts_with("2014"))
+coverage1.6
+spending1.6 <- spending %>%
+  select(starts_with("Location"),
+         starts_with("2013"),
+         starts_with("2014"))
+spending1.6
 ```
 
 ## <!-- 1.7 -->There are 50 states in the United States but 52 observations in the `coverage` and `spending` datasets. The two "bonus" cases contain information about the US as a whole and Washington DC.  Remove these observations from both datasets.
 
 ```{r}
-coverageSmall <- coverageSmall %>%
-  filter(Location != c("United States","District of Columbia"))
-spendingSmall <- spendingSmall %>%
-  filter(Location != c("United States","District of Columbia"))
+state_coverage1314 <- coverage1.6 %>%
+  filter(Location != "District of Columbia", Location != "United States")
+state_coverage1314
+state_spending1314 <- spending1.6 %>%
+  filter(Location != "District of Columbia", Location != "United States")
+state_spending1314
 ```
 
 <!--
@@ -177,26 +185,35 @@ Have you been committing and pushing? Now's a good time! "Add answers to Part 1"
 
 ## <!-- 2.1 -->First, sketch what the scatterplot should look like on paper or Google jamboard or some other app (what are the axes? what does each point represent?). What does your dataset need to look like in order to create the scatterplot in `ggplot()`? What will each observation (row) in the dataset represent? What variables (columns) do you need?
 
-I would expect a positive correlation between spending and coverage. The x axis would be coverage and spending on the y axis. Each points would represent a year in a state. The dataset needs to be in one data frame with the locations of both line up and corresponding columns of spending and coverage per year. The rows would have the states. It will also require a new column for the year
- 
+```{r}
+#coverage2.1 <- coverage1.7 %>%
+ # select(ends_with("Employer"))
+#coverage2.1
+g <- ggplot(data = healthcare, aes(x = log(spending), y = log(coverage)))
+```
+
+
 ## <!-- 2.2 -->What are some of the steps that will need to be taken to get the data in that form?  
 
-I will need to inner_join() the two datasets by creating a new dataset.
+
 
 ## <!-- 2.3 -->Now implement those steps in R, tidying the dataset for plotting.  After the final step, use the `clean_names()` function from the **janitor** package to clean the variable names.  Then, create the scatterplot!
 
 ```{r}
-coverageSmall
-healthcare <- coverageSmall %>%
-  inner_join(spendingSmall, by = "Location") %>% 
+healthcare <- state_coverage1314 %>%
+  inner_join(state_spending1314, by = "Location") %>% 
   pivot_longer(cols = -Location,
                names_sep = "__",
                names_to = c("year", "category"),
-               values_to = "amount") %>% 
+               values_to = "amount")  %>% 
   pivot_wider(names_from = "category",
-              values_from = "amount") %>% 
-  clean_names() 
+              values_from = "amount") %>%
+  clean_names()
+
 healthcare
+g <- ggplot(data = healthcare, 
+            aes(x = log(total_health_spending), y = log(employer)))
+g + geom_point() + labs(x = "Log of Total Spending", y = "Log of Employer Coverage")
 ```
 
 <!--
@@ -209,54 +226,39 @@ Whew! You just did a lot. Consider committing and pushing now:
 
 ## <!-- 3.1 -->Using the dataset you created in Part 2, rename the `total` column to  `total_population` to make the variable name more informative. Create a scatterplot of employer coverage versus population size (*note*: "plot blank vs blank" means "plot y variable vs x variable"). Then create a second scatterplot of healthcare spending vs. population size. What do you notice?
 
+
+
 ```{r}
-healthcare <- healthcare %>%
+healthcare.3.1 <- healthcare %>%
   rename(total_population = total)
+healthcare.3.1
+  ggplot(data = healthcare.3.1, 
+         mapping = aes(x = total_population/10000000, 
+                       y = total_health_spending/1000)) + 
+          geom_point() + 
+          labs(x = "Total Population in Millions", 
+               y = "Total Spending in Thousands")
 ```
-
-
-
-```{r}
-healthcare %>%
-  ggplot(mapping = aes(x = total_population, y = log(employer))) +
-  geom_point(aes(color = year)) + 
-  scale_x_continuous(n.breaks = 10) +
-  labs(title = "Employer Coverage versus Population Size",
-       x = "Total population in millions",
-       y = "Employer coverage in thousand dollars")
-healthcare %>%
-  ggplot(mapping = aes(x = total_population/1000000, y = log(total_health_spending))) +
-  geom_point(aes(color = year)) + 
-  scale_x_continuous(n.breaks = 10) +
-  labs(title = "Total Spending versus Population Size",
-       x = "Total population in millions",
-       y = "Total spending in thousand dollars")
-```
-
-While both exhibit a positive correlation, employer coverage is much steeper than total health spending and the y axis labelings show that. Employer coverage is from 0 - 15,000k while health spending ranges from 0 - 300k.
+There is a very strong positive relationship between total population and total spending.
 
 ## <!-- 3.2 -->To account for total population, create a scatterplot of spending per capita versus proportion with employer coverage.  This time, *color by region* and *facet by year* (think about what additional steps you need to take to make this happen!).  The total spending column is reported in millions (`1e6`). Therefore, to calculate `spending_per_capita` we will need to adjust for this scaling factor to report it on the original scale (just dollars) and then divide by `total_population`.  Based on this figure, write a brief paragraph describing the relationship between health care spending and coverage in the US.
 
+The US spends nearly $10,000 on healthcare for every member of its population, yet less than half of Americans receive healthcare coverage from their employers. However, this relationship varies by region. This figure reveals that spending per capita is highest in the Northeast and lowest in the West, while employer coverage per capita is highest in the Northeast and North Central regions. Thus, North Central US yields the lowest spending to coverage ratio and may serve as a valuable case study for other US regions.
+
 ```{r}
-healthcare <- healthcare %>% 
+healthcare.3.2 <- healthcare.3.1 %>%
+  mutate(spending_per_capita = total_health_spending*1000000/total_population) %>%
   inner_join(state_info, by = c("location" = "location"))
-healthcare
+glimpse(healthcare.3.2)
+
+  ggplot(data = healthcare.3.2, 
+         mapping = aes(x = employer/total_population, 
+                       y = (spending_per_capita))) + 
+          geom_point(aes(color = region)) +
+          facet_wrap(~year) +
+          labs(x = "Proportion of Population with Employer Coverage", 
+               y = "Spending per Capita (Dollars)")
 ```
- 
-
-```{r}
-ggplot(data = healthcare) + 
-  geom_point(aes(color = region,
-                 x = employer,
-                 y = (total_health_spending*1000000/total_population))) + 
-  facet_wrap(~year) + 
-  labs(title = "Spending Per Capita versus Proportion With Employer Coverage",
-       x = "Employer Coverage",
-       y = "Total Health Spending Per Capita")
-
-```
-
-In a lot of states it seems like the employer coverage does not accurately reflect the needs of its citizens. With the left leaning points the data shows that employer coverage is often very low, irregardless the needs of the constituents of their states, high or low. The lack of a clear correlation indicates that employer coverage isn't calculated based on per capital spending.
 
 <!--
 Commit and push! "Add answers to Problem 3"
@@ -267,10 +269,13 @@ Commit and push! "Add answers to Problem 3"
 
 ## <!-- 4.1 -->Which US state spent the most per capita on health care in 2013? 2014? The least in each year?  
 
-
+Alaska spent the most per capita on health care in 2013 and 2014. Utah spent the least in both years.
 
 ```{r}
-
+healthcare.4.1 <- healthcare.3.2 %>%
+  arrange(desc(spending_per_capita)) %>%
+  select(location, year, spending_per_capita)
+healthcare.4.1
 ```
 
 ## <!-- 4.2 -->How does the spending distribution change across geographic region in the US?  Create an appropriate figure to visualize the distribution of spending per capita on health care by region.  Write one paragraph summarizing a comparison of the distributions.  (Note that you probably will also want to generate summary statistics by region in order to include specific values in your summary paragraph.)
@@ -278,7 +283,11 @@ Commit and push! "Add answers to Problem 3"
 The distributions look similar in 2013 and 2014. Spending per capita is highest and has the least variability in the Northeast (median around $9,500 and IQR around $300). The most variability in spending is in the West, which has a median of around $7,300, an IQR around $1,200, and a large outlier at over $10,000. The North Central and South regions have medians around $8,100 and $7,500, respectively and both have outliers on the high side.
 
 ```{r}
+ggplot(data = healthcare.3.2) +
+   geom_freqpoly(aes(x = spending_per_capita)) +
+   facet_wrap(~region)
 
+mosaic::favstats(~spending_per_capita|region, data = healthcare.3.2)
 ```
 
 <!--
@@ -293,6 +302,22 @@ Commit and push! "Add answers to Problem 4"
 ![](img/uninsured_spending_2013.png) 
 
 ```{r, fig.width = 6.5, fig.height = 3.5}
+# Add proportion uninsured to dataset
+healthcare <- healthcare %>%
+  mutate(proportion_uninsured = uninsured / total_population)
+
+healthcare %>% 
+  filter(year == "2013") %>% 
+  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
+             color = region)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", col = "red") + 
+  geom_text(aes(label = abbreviation), nudge_x = 200) +
+  labs(x = "Spending per capita ($)", 
+       y = "Proportion uninsured", 
+       color = "Region",
+       title = "Proportion uninsured vs. healthcare spending",
+       subtitle = "United States in 2013")
 ```
 
 ## <!-- 5.2 -->Next, create an analogous plot (separately) for 2014. Does the relationship between health care spending and the proportion of uninsured change from 2013 to 2014?
@@ -300,13 +325,35 @@ Commit and push! "Add answers to Problem 4"
 The relationship between healthcare spending and the proportion uninsured looks pretty similar from 2013 to 2014.
 
 ```{r fig.width = 6.5, fig.height = 3.5}
-
+healthcare %>% 
+  filter(year == "2014") %>% 
+  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
+             color = region)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", col = "red") + 
+  geom_text(aes(label = abbreviation), nudge_x = 200) +
+  labs(x = "Spending per capita ($)", 
+       y = "Proportion uninsured", 
+       color = "Region",
+       title = "Proportion uninsured vs. healthcare spending",
+       subtitle = "United States in 2014")
 ```
 
 ## <!-- 5.3 -->Now combine your two plots into one graph, creating one figure that is facetted by year and still colored by region. 
 
 ```{r fig.width = 6.5, fig.height = 6}
-
+healthcare %>% 
+  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
+             color = region)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", col = "red") + 
+  geom_text(aes(label = abbreviation), nudge_x = 200) +
+  facet_wrap(~ year, nrow = 2) + 
+  labs(x = "Spending per capita ($)", 
+       y = "Proportion uninsured", 
+       color = "Region",
+       title = "Proportion uninsured vs. healthcare spending",
+       subtitle = "United States, 2013-2014")
 ```
 
 ## <!-- 5.4 -->Lastly, plot the points for both years on the same plot, this time colored by year instead of region.  Make sure to specify the `group` aesthetic for year as well to get two lines. Which of these three visualizations do you find most helpful for comparing the relationship between 2013 and 2014?  Why?
@@ -314,7 +361,17 @@ The relationship between healthcare spending and the proportion uninsured looks 
 I think the last one where both years are on the same figure (colored by year instead of region) is most helpful for comparing the relationship between 2013 and 2014. We lose the visual cue of region, but it’s easiest for me to see the change in the relationship when the points and lines are on the same plot.
 
 ```{r fig.width = 6.5, fig.height = 3.5}
-
+healthcare %>% 
+  ggplot(aes(x = spending_per_capita, y = proportion_uninsured, 
+             color = year, group = year)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  geom_text(aes(label = abbreviation), nudge_x = 200) +
+  labs(x = "Spending per capita ($)", 
+       y = "Proportion uninsured", 
+       color = "Year",
+       title = "Proportion uninsured vs. healthcare spending",
+       subtitle = "United States, 2013-2014")
 ```
 
 <!--
