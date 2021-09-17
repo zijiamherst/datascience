@@ -91,7 +91,10 @@ Name(s) and corresponding problem(s)
 
 Source(s) and corresponding problem(s)
 
-* 
+*  Problem 3: https://www.dummies.com/programming/r/how-to-create-a-data-frame-from-scratch-in-r/
+*  Problem 2: https://stackoverflow.com/questions/38008863/how-to-draw-a-nice-arrow-in-ggplot2/61383034
+*  Problem 2: https://ggplot2.tidyverse.org/reference/annotate.html
+*  Problem 3: https://www.youtube.com/watch?v=gnUgSkKEW5c
 
 ```{r setup, include = FALSE}
 # load packages
@@ -120,14 +123,13 @@ options(scipen = 1, knitr.kable.NA = '')
 ## <!-- 1.1 -->List the name of every player in baseball history who has accumulated at least 300 home runs (HR) and at least 300 stolen bases (SB). You can find the first and last name of the player in the `Master` data frame. Join this to your result along with the total home runs and total bases stolen for each of these elite players.
 
 ```{r}
-glimpse(Batting)
 mlb_HR_SB <- Batting %>%
   group_by(playerID) %>%
   summarise(HR_total = sum(HR), SB_total = sum(SB))%>%
   filter(HR_total >= 300 & SB_total >= 300) %>%
   inner_join(Master, by = c("playerID" = "playerID")) %>%
   select(nameFirst,nameLast,playerID,HR_total,SB_total)
-mlb_HR_SB
+kable(mlb_HR_SB, booktabs = TRUE) 
 ```
 
 ## <!-- 1.2 -->Similarly, list the names every pitcher in baseball history who has accumulated at least 300 wins (W) and at least 3,000 strikeouts (SO).
@@ -140,7 +142,8 @@ mlb_W_SO <- Pitching %>%
   inner_join(Master, by = c("playerID" = "playerID")) %>%
   select(nameFirst,nameLast,playerID,W_total,SO_total) %>%
   arrange(desc(W_total))
-mlb_W_SO
+kable(mlb_W_SO, booktabs = TRUE) 
+
 ```
 
 ## <!-- 1.3 -->Finally, list the name and year of every player who has hit at least 50 home runs in a single season. Which player had the lowest batting average in that season? Note: Batting average is calculated as the number of hits (H) divided by the number of at bats (AB).
@@ -155,22 +158,15 @@ mlb_HR_BA <- Batting %>%
   mutate(battingAverage = H/AB) %>%
   select(nameFirst, nameLast, playerID, yearID, battingAverage, HR) %>%
   arrange(desc(battingAverage))
-mlb_HR_BA
+kable(mlb_HR_BA, booktabs = TRUE) 
 ```
 
+Pete Alonso had the worst batting average of 0.260 for a player hitting 50 or more HR in a season.
 
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->**MDSR 4.11 (modified)** The `Violations` data set in the **mdsr** package contains information regarding the outcome of health inspections of restaurants in New York City. Note that higher inspection scores indicate worse violations: "restaurants with an inspection score between 0 and 13 points earn an A, those with 14 to 27 points receive a B and those with 28 or more a C" ([nyc.gov](https://www1.nyc.gov/assets/doh/downloads/pdf/rii/how-we-score-grade.pdf)).
 
 ## <!-- 2.1 -->Use these data to calculate the median violation score by zip code for zip codes in Manhattan. What pattern, if any, do you see between the number of inspections and the median score? Generate a visualization to support your response. 
-
-```{r ViolationsFirstLook, eval == false}
-Violations %>%
-  filter(zipcode == 11101) %>%
-  group_by(zipcode) %>%
-  summarize(median_violation = median(score, na.rm = TRUE), inspections = n()) %>%
-glimpse()
-```
 
 ```{r}
 violations_median <- Violations %>%
@@ -178,7 +174,7 @@ violations_median <- Violations %>%
   group_by(zipcode) %>%
   summarize(median_violation = median(score, na.rm = TRUE), inspections = n()) %>%
   arrange(desc(median_violation))
-violations_median
+
 ggplot(violations_median) +
   geom_point(aes(x = inspections,
                  y = median_violation)) + 
@@ -235,7 +231,20 @@ ggplot(violations_median) +
 ![Results](img/ps2_mdsr-5-5-result.png){width=80%}
 
 ```{r}
+#create the vectors
+grp <- c("A","A","B","B")
+sex <- c("F","M","F","M")
+meanL <- c(0.225,0.470,0.325,0.547)
+sdL <- c(0.106,0.325,0.106,0.308)
+meanR <- c(0.340,0.570,0.400,0.647)
+sdR <- c(0.085,0.325,0.071,0.274)
+data_long <- data.frame(grp,sex,meanL,sdL,meanR,sdR)
+kable(data_long, booktabs = TRUE)
 
+data_wide <- data_long %>%
+  pivot_longer(c("meanL","sdL","meanR","sdR"), names_to = "Type of Measurement", values_to = "Number") %>%
+  pivot_wider(names_from = c("sex","Type of Measurement"), values_from = Number, names_sep = ".")
+kable(data_wide, booktabs = TRUE, digits = 2)
 ```
 
 
