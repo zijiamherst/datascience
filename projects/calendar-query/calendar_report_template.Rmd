@@ -47,7 +47,7 @@ https://support.google.com/calendar/answer/37111?hl=en&ref_topic=10509946
 -->
 ```{r, eval = FALSE}
 # Data import and preliminary wrangling
-calendar_data <- "PATH/CALENDAR_FILENAME.ics" %>% 
+calendar_data <- "/Users/zijizhou/Downloads/Calendar\ Query_7fhbb7ap32kh844fklt7cca3sc@group.calendar.google.com.ics" %>% 
   # Use ical package to import into R
   ical_parse_df() %>% 
   # Convert to "tibble" data frame format
@@ -64,7 +64,9 @@ calendar_data <- "PATH/CALENDAR_FILENAME.ics" %>%
 # Compute total duration of time for each day & activity
 activities <- calendar_data %>% 
   group_by(date, activity) %>%
-  summarize(duration_sec = sum(duration_sec))
+  summarize(duration_mins = sum(duration_sec))
+calendar_data
+activities
 ```
 
 <!--
