@@ -162,14 +162,34 @@ mlb_HR_BA
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->**MDSR 4.11 (modified)** The `Violations` data set in the **mdsr** package contains information regarding the outcome of health inspections of restaurants in New York City. Note that higher inspection scores indicate worse violations: "restaurants with an inspection score between 0 and 13 points earn an A, those with 14 to 27 points receive a B and those with 28 or more a C" ([nyc.gov](https://www1.nyc.gov/assets/doh/downloads/pdf/rii/how-we-score-grade.pdf)).
 
-## <!-- 2.1 -->Use these data to calculate the median violation score by zip code for zip codes in Manhattan. What pattern, if any, do you see between the number of inspections and the median score? Generate a visualization to support your response.  
-  
+## <!-- 2.1 -->Use these data to calculate the median violation score by zip code for zip codes in Manhattan. What pattern, if any, do you see between the number of inspections and the median score? Generate a visualization to support your response. 
 
-
+```{r ViolationsFirstLook, eval == false}
+Violations %>%
+  filter(zipcode == 11101) %>%
+  group_by(zipcode) %>%
+  summarize(median_violation = median(score, na.rm = TRUE), inspections = n()) %>%
+glimpse()
+```
 
 ```{r}
-
+violations_median <- Violations %>%
+  filter(boro == "MANHATTAN") %>% 
+  group_by(zipcode) %>%
+  summarize(median_violation = median(score, na.rm = TRUE), inspections = n()) %>%
+  arrange(desc(median_violation))
+violations_median
+ggplot(violations_median) +
+  geom_point(aes(x = inspections,
+                 y = median_violation)) + 
+  coord_trans(x = "log") + 
+  labs(title = "Median Inspection Score vs Number of Inspections",
+       subtitle = "Per Zipcodes in Manhattan",
+       x = "Number of inspections",
+       y = "Median inspection score") 
 ```
+
+There is a positive correlation between inspections and median inspection score. Do bad scores motivate more inspections? Or do more inspections expose more violations?
 
 ## <!-- 2.2 -->In your visualization above, there are several potential outliers but there is one zipcode in particular that does not seem to fall along the general trend. Add text to the outlier identifying what zipcode it is, and add an arrow pointing from the text to the observation. Note: first, you may want to `filter()` to identify the zipcode (so you know what text to add to the plot).  
 
@@ -184,7 +204,25 @@ Check out the text examples with `annotate()` [here](https://ggplot2.tidyverse.o
 -->
 
 ```{r}
-
+#outliers in 10123
+ggplot(violations_median) +
+  geom_point(aes(x = inspections,
+                 y = median_violation)) + 
+  coord_trans(x = "log") + 
+  labs(title = "Median Inspection Score vs Number of Inspections",
+       subtitle = "Per Zipcodes in Manhattan",
+       x = "Number of inspections",
+       y = "Median inspection score") +
+  annotate("text", x = 2, y = 20, label = "10123") +
+  geom_curve(
+  x = 3,
+  y = 20,
+  xend = 28, 
+  yend = 24,
+  arrow = arrow(length = unit(0.03, "npc")))
+  
+  
+  
 ```
 
 
