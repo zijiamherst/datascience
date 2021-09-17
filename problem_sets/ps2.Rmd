@@ -1,6 +1,6 @@
 ---
 title: "Practice Set 2"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Friday"
 urlcolor: blue
 linkcolor: blue
@@ -98,6 +98,7 @@ Source(s) and corresponding problem(s)
 library(mdsr)
 library(tidyverse)
 library(kableExtra)
+library(Lahman)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -119,13 +120,27 @@ options(scipen = 1, knitr.kable.NA = '')
 ## <!-- 1.1 -->List the name of every player in baseball history who has accumulated at least 300 home runs (HR) and at least 300 stolen bases (SB). You can find the first and last name of the player in the `Master` data frame. Join this to your result along with the total home runs and total bases stolen for each of these elite players.
 
 ```{r}
-
+glimpse(Batting)
+mlb_HR_SB <- Batting %>%
+  group_by(playerID) %>%
+  summarise(HR_total = sum(HR), SB_total = sum(SB))%>%
+  filter(HR_total >= 300 & SB_total >= 300) %>%
+  inner_join(Master, by = c("playerID" = "playerID")) %>%
+  select(nameFirst,nameLast,playerID,HR_total,SB_total)
+mlb_HR_SB
 ```
 
 ## <!-- 1.2 -->Similarly, list the names every pitcher in baseball history who has accumulated at least 300 wins (W) and at least 3,000 strikeouts (SO).
 
 ```{r}
-
+mlb_W_SO <- Pitching %>%
+  group_by(playerID) %>%
+  summarise(W_total = sum(W), SO_total = sum(SO))%>%
+  filter(W_total >= 300 & SO_total >= 3000) %>%
+  inner_join(Master, by = c("playerID" = "playerID")) %>%
+  select(nameFirst,nameLast,playerID,W_total,SO_total) %>%
+  arrange(desc(W_total))
+mlb_W_SO
 ```
 
 ## <!-- 1.3 -->Finally, list the name and year of every player who has hit at least 50 home runs in a single season. Which player had the lowest batting average in that season? Note: Batting average is calculated as the number of hits (H) divided by the number of at bats (AB).
@@ -134,7 +149,13 @@ options(scipen = 1, knitr.kable.NA = '')
 
 
 ```{r}
-
+mlb_HR_BA <- Batting %>%
+  filter(HR >= 50) %>%
+  inner_join(Master, by = c("playerID" = "playerID")) %>%
+  mutate(battingAverage = H/AB) %>%
+  select(nameFirst, nameLast, playerID, yearID, battingAverage, HR) %>%
+  arrange(desc(battingAverage))
+mlb_HR_BA
 ```
 
 
