@@ -1,0 +1,217 @@
+---
+title: "Reading Set 3b: Shiny Tutorial Video"
+author: "Your Name"
+date: "Due by 10pm ET on Monday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Part \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Problem set}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Problem set
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Reading Set Information** {-}
+
+This week we will replace reading with watching a tutorial video! 
+
+Getting practice with the code while watching the video prior to class will allow us to jump into things more quickly in class and dive deeper into topics. As you actively watch the tutorial, you will work through the Reading Set to help you engage with the new concepts and skills.
+
+
+
+*These should be completed on your own without help from your peers*. While most of our work in this class will be collaborative, it is important each individual completes the active readings.  The problems should be straightforward based on the textbook readings, but if you have any questions, feel free to ask me!
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. 
+
+5. You should occasionally *push* the updated version of the .Rmd file back onto GitHub. When you are ready to push, you can click on the Git pane and then click **Push**. You can also do this after each commit in RStudio by clicking **Push** in the top right of the *Commit* pop-up window. 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" (it's okay to leave out the date if you don't need it) before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+\clearpage
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+```{r setup, include = FALSE}
+# load packages
+library(shiny) 
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      eval = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+# theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+# **Additional Instructions** {-}
+The Shiny Tutorial video is a recording from an older webinar series, so the slides and code are not at the bitly link provided and you can ignore references to that, and obviously the dates of the webinar are meaningless. 
+
+I have included all the code and slides from the tutorial in the folder for Reading Set 3 (make sure you have copied over the entire folder with all its contents!). I obtained the files from the corresponding [Shiny tutorial repo](https://github.com/rstudio-education/shiny.rstudio.com-tutorial). 
+
+Use the **Files** pane in RStudio to navigate to the individual R scripts in tandem with the video tutorial to run the code along with the speaker. 
+
+There are 3 parts to the Shiny tutorial, and all 3 parts are in the same 2.5-hour video. You can power through all three in one sitting, or I've embedded time-stamped links in this document that will allow you to jump to Part 2 and Part 3 when you're ready, if you want to break up the tutorial a bit. 
+
+Keep track of your questions, big and small, as they come up while you are coding along with the video and taking notes. It's possible a question you have early on will be answered as you continue watching the video. Any remaining questions you can do some answer-finding after the video or post to Campuswire if you still can't figure something (or some things) out.
+
+Finally, you should *NOT* publish your app with shinyapps.io for this Reading Set. We will use class time this week to publish our first app.
+\normalfont
+
+<!-- PART 1 ---------------------------------------------------------------->
+# <!-- 1 -->**How to build a Shiny app (25 -- 30 minutes)**  Watch [Part 1](https://player.vimeo.com/video/131218530#t=33s) of the tutorial. After the demonstration of the second shiny app script (`02-hist-app.R`), skip over the "Share your app" sections and jump to the [40-minute mark](https://player.vimeo.com/video/131218530#t=40m02s)) to watch the brief recap of Part 1.  Feel free to modify either the R script files themselves or to copy and paste the code into this document to get practice.
+
+<!--
+The code for Part 1 of the webinar is in the`part-1-code` subfolder of this reading set folder.
+
+R script files:
+
+* 01-template.R 
+* 02-hist-app.R 
+* app.R 
+
+The speaker says you need to select, copy, and paste the code into the Console, but RStudio makes this process much easier these days with the a big "Run App" button! 
+
+When it comes time in the tutorial, open the R script as indicated, code along with the video, and click the "Run App" button in the top right of the R script window pane to automatically run the code and open the Shiny app.
+-->
+
+## <!-- 1.1 -->What are the 3 main components needed to build a shiny app, and what is the purpose of each?
+
+
+
+<!-- PART 2 ---------------------------------------------------------------->
+# <!-- 2 -->**How to customize reactions (50 -- 60 minutes)** Continue on to [Part 2](https://player.vimeo.com/video/131218530#t=43m32s) of the tutorial (starting at 43:32).
+
+<!--
+The code for Part 2 of the webinar is in the`part-2-code` subfolder of this reading set folder.
+
+R script files for Part 2:
+
+* 01-two-inputs.R
+* 02-two-outputs.R
+* 03-reactive.R
+* 04-isolate.R
+* 05-actionButton.R
+* 06-observeEvent.R
+* 07-eventReactive.R
+* 08-reactiveValues.R
+
+When it comes time in the tutorial, open the R script as indicated, code along with the video, and click the "Run App" button in the top right of the R script window pane to automatically run the code and open the Shiny app.
+-->
+
+## <!-- 2.1 -->What is the general idea behind *reactivity* for a Shiny app?
+
+
+
+## <!-- 2.2 -->Give an example of how you might use one (or more) reactive value(s) in conjunction with a reactive function.
+
+
+
+<!-- PART 3 ---------------------------------------------------------------->
+# <!-- 3 -->**How to customize appearance (40 -- 50 minutes)** Continue on to [Part 3](https://player.vimeo.com/video/131218530#t=1h33m41s) of the tutorial (starting at 1:33:41). Skip over the *Style with CSS" section, and jump to  the [2:24:35 mark](https://player.vimeo.com/video/131218530#t=2h24m35s) to wrap up the webinar! 
+
+<!--
+The code for Part 3 of the webinar is in the`part-3-code` subfolder of this reading set folder.
+
+The files for Part 3:
+
+* App-Directory
+* 01-tags.html
+* 02-tags.R
+* 03-layout.R
+* 04-well.R
+* 05-tabs.R
+* 06-navlist.R
+* 07-sidebar.R
+* 08-navbarPage.R
+* 09-navbarMenu.R
+* 10-CSS.html
+* bootswatch-cerulean.css
+
+When it comes time in the tutorial, open the file as indicated to view the contents, or code along with the video and run the Shiny app script by clicking the "Run App" button in the top right of the R script window pane.
+-->
+
+## <!-- 3.1 -->What is one question that still remains after completing the webinar (and after trying to answer yourself with your answer-finding skills)? 
+
+
+
+<!-- PART 4 ---------------------------------------------------------------->
+# <!-- 4 -->**On your own** Follow the steps below to create a new shiny app.
+<!--
+You do not need to write anything in response to the "questions" below! They are simply organized in numbered steps so you can follow the steps in the knitted pdf rather than reading through the messy Markdown below.
+-->
+
+## <!-- 4.1 -->Create a new folder in this directory called "rs3_shiny" (i.e., the filepath will be `YOUR-REPO/problem-sets/rs3/rs3_shiny`). 
+
+## <!-- 4.2 -->Open a new *R Script* file (*not* R Markdown) by going to **File** $\rightarrow$ **New File** $\rightarrow$ **R Script**.  R Script files only take R code and comments (anything you would put in a code chunk).
+
+## <!-- 4.3 -->Save the file as `app.R` within the "rs3_shiny" folder.  
+
+## <!-- 4.4 -->Copy the code from the `part-2-code/02-two-outputs.R` file and paste it into your new `app.R` script.
+
+## <!-- 4.5 -->Add a `textInput()` widget that allows the user to change the title of the histogram (similar to the code in `part-2-code/01-two-inputs.R`).  Update the code in the `server()` function appropriately.  Run the app to make sure it works as you expect.
+
+## <!-- 4.6 -->Update the layout of the app to use a `navlistPanel()` structure (similar to the code in `part-3-code/06-navlist.R`).  *Hint*: put `navlistPanel()` around the output objects only.
+
+## <!-- 4.7 -->Make sure the app runs successfully, then save your changes in the `app.R` file, and push the contents (the folder and its contents) to your GitHub repo. 
+
+<!--
+Congrats! You've made it to the end. 
+
+If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
+-->
