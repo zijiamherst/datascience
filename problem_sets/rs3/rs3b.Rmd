@@ -1,6 +1,6 @@
 ---
 title: "Reading Set 3b: Shiny Tutorial Video"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Monday"
 urlcolor: blue
 linkcolor: blue
@@ -132,7 +132,7 @@ When it comes time in the tutorial, open the R script as indicated, code along w
 
 ## <!-- 1.1 -->What are the 3 main components needed to build a shiny app, and what is the purpose of each?
 
-
+The three components are the UI, the server, and the R script. A shiny app requires a UI where the user interacts with the inputs which then is sent to a server running the R script. The server will run the R script in response to the changed inputs and generate a new output to send to the UI again and display the output.
 
 <!-- PART 2 ---------------------------------------------------------------->
 # <!-- 2 -->**How to customize reactions (50 -- 60 minutes)** Continue on to [Part 2](https://player.vimeo.com/video/131218530#t=43m32s) of the tutorial (starting at 43:32).
@@ -156,11 +156,11 @@ When it comes time in the tutorial, open the R script as indicated, code along w
 
 ## <!-- 2.1 -->What is the general idea behind *reactivity* for a Shiny app?
 
-
+Reactivity is the the interaction between the input of the user and the output coming from the R server. Integrating reactivity into Shiny apps allow for more layers of data presented and a level of customization in output for the user.
 
 ## <!-- 2.2 -->Give an example of how you might use one (or more) reactive value(s) in conjunction with a reactive function.
 
-
+The `renderPlot()` function can allow me to assign reactive values inside of it in order to change elements of the plot within the render function. For example, in the UI section of the Shiny app I can include a slider getting a value between 1-100. That number would be stored within as `input$num`. Then, within the output the `renderPlot()` function will include a `ggplot` that includes an element of `scale_x_continuous(n.breaks = input$num)`, allowing the user to input the number of ticks on the x axis to customize their graph. Considering the change in ggplot labeling won't require a change in the actual datapoints in the graph, the change will exist wihtin an `isolate()` function.
 
 <!-- PART 3 ---------------------------------------------------------------->
 # <!-- 3 -->**How to customize appearance (40 -- 50 minutes)** Continue on to [Part 3](https://player.vimeo.com/video/131218530#t=1h33m41s) of the tutorial (starting at 1:33:41). Skip over the *Style with CSS" section, and jump to  the [2:24:35 mark](https://player.vimeo.com/video/131218530#t=2h24m35s) to wrap up the webinar! 
@@ -188,7 +188,7 @@ When it comes time in the tutorial, open the file as indicated to view the conte
 
 ## <!-- 3.1 -->What is one question that still remains after completing the webinar (and after trying to answer yourself with your answer-finding skills)? 
 
-
+I think it is less of a specific answer but rather the intricacies of formatting the web page dynamically vs. a fixed page. With the variety of screen sizes and ratios the criteria to build a functional page for all platforms (or even simply a few of the most popular ones) seem difficult with the unique intricacies each platform presents.
 
 <!-- PART 4 ---------------------------------------------------------------->
 # <!-- 4 -->**On your own** Follow the steps below to create a new shiny app.
