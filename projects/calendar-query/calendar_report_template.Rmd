@@ -56,7 +56,8 @@ calendar_data <- "/Users/zijizhou/Downloads/Calendar\ Query_7fhbb7ap32kh844fklt7
     # Use lubridate package to wrangle dates and times
     start_datetime = with_tz(start, tzone = "America/New_York"),
     end_datetime = with_tz(end, tzone = "America/New_York"),
-    duration_sec = end_datetime - start_datetime,
+    # duration_sec = end_datetime - start_datetime,
+    duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
     date = floor_date(start_datetime, unit = "day"),
     # Convert calendar entry to all lowercase and rename
     activity = tolower(summary))
