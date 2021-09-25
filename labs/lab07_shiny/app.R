@@ -42,9 +42,6 @@ mad_men_tidy <- mad_men %>%
 #set up input
 name_choices <- unique(mad_men_tidy$performer)
 
-options_choice_names <- c("Supporting role in movies","Leading role in movies","Show roles with appearance in at least half the episodes")
-options_choice_values <- c("lead_notes", "support_notes", "show")
-names(options_choice_values) <- options_choice_names
 
 ############
 #    ui    #
@@ -61,11 +58,6 @@ ui <- fluidPage(
                      choices = name_choices,
                      selected = NULL,
                      multiple = TRUE),
-      
-      checkboxGroupInput(inputId = "options_name",
-                   label = "Type of Appearance", 
-                   choices = options_choice_names, 
-                   selected = NULL)
       ),
   
   mainPanel(plotOutput("timeline"))
@@ -90,10 +82,6 @@ server <- function(input, output){
   support_data <- reactive({
     data <- mad_men_support %>%
       filter(performer %in% input$id_name)
-  })
-  
-  plot_show <- reactive({
-    show %in% input$options_name
   })
   
 
