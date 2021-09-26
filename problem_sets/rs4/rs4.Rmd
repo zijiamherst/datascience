@@ -161,8 +161,24 @@ Genzebe Dibaba holds the world record for women's indoor one mile with a time of
 
 
 ```{r}
+women_outdoor <- tables %>%
+  purrr::pluck(8) %>%
+  html_table()
 
+women_indoor <- women_indoor %>%
+  mutate(Type = "Indoor")
+
+women_outdoor <- women_outdoor %>%
+  mutate(Type = "Outdoor")
+
+women_records <- bind_rows(women_indoor,women_outdoor) %>%
+  arrange(by = Time) %>%
+  select(-Venue, -Auto)
+
+women_records %>% kable(bookTabs = TRUE, longtable = TRUE)
 ```
+
+Sifan Hassan holds the fastest mile for women running outdoors with a time of 4:12.33.
 
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->As we wrap up the chapter on ethics, what are three major takeaways from Chapter 8 that had an impact on how you think about approaching your work as a budding data scientist?
