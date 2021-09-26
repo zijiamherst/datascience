@@ -1,0 +1,174 @@
+---
+title: "Reading Set 4"
+author: "Ziji Zhou"
+date: "Due by 10pm ET on Monday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Problem \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Problem set}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Problem set
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Reading Set Information** {-}
+
+A more thorough reading and light practice of the textbook reading prior to class allows us to jump into things more quickly in class and dive deeper into topics. As you actively read the textbook, you will work through the Reading Sets to help you engage with the new concepts and skills, often by replicating on your own the examples covered in the book. 
+
+*These should be completed on your own without help from your peers*. While most of our work in this class will be collaborative, it is important each individual completes the active readings.  The problems should be straightforward based on the textbook readings, but if you have any questions, feel free to ask me!
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. 
+
+5. You should occasionally *push* the updated version of the .Rmd file back onto GitHub. When you are ready to push, you can click on the Git pane and then click **Push**. You can also do this after each commit in RStudio by clicking **Push** in the top right of the *Commit* pop-up window. 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" (it's okay to leave out the date if you don't need it) before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+\normalfont
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+library(rvest)
+library(robotstxt)
+library(purrr)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!-- PROBLEM 1 ---------------------------------------------------------------->
+# <!-- 1 -->**Web scraping** In Section 6.4.1.2, the **rvest** package is used to scrape a Wikipedia page.  BUT **WAIT**!  While we may have the technical ability to scrape a webpage, that doesn't necessarily mean we are *allowed* to scrape it.  **ETHICS ALERT!** *Before scraping a web page, you should always check whether doing so is allowed.*  If you're unsure of the permissions for a particular domain, you can use the handy `paths_allowed()` function within the **robotstxt** package.
+
+## <!-- 1.1 -->Check the permissions for the Wikipedia page using the code below. If the code returns "TRUE", then that indicates a bot has permission to access the page. Do you (via R) have permission to access the page? 
+
+
+
+```{r}
+# Define url since we will use it again
+url <- "https://en.wikipedia.org/wiki/Mile_run_world_record_progression"
+
+# Check bot permissions
+paths_allowed(url)
+```
+
+Since the output returned TRUE, I do have permission to access this page.
+
+## <!-- 1.2 -->Now, use the code chunk below to follow along with the code in Section 6.4.1.2 to scrape the tables from the Wikipedia page on *Mile run world record progression*.  Use `length(tables)` to identify how many tables are in the object you created called `tables`.  How many tables are there? 
+<!--
+Remember to load any necessary packages in the `setup` code chunk, installing them first if necessary.
+-->
+
+
+
+```{r}
+tables <- url %>% 
+  read_html() %>% 
+  html_nodes("table")
+
+length(tables)
+```
+
+There are a total of 12 tables on this webpage.
+
+## <!-- 1.3 -->Next, look at the [Wikipedia page](https://en.wikipedia.org/wiki/Mile_run_world_record_progression).  We want to work with the table toward the bottom titled "Women Indoor IAAF era" shows four records: one for Mary Decker, two for Doina Melinte, and one for Genzebe Dibaba.  From your `tables` object created in 1.2, create a dataframe called `women_indoor` that includes this "Women Indoor IAAF era" table data.  *Hint*: You can use the same code as used in the textbook to create the `amateur` and `records` tables, except you'll need to update the table number that's `pluck`ed.
+
+```{r}
+women_indoor <- tables %>%
+  purrr::pluck(10) %>%
+  html_table()
+```
+
+## <!-- 1.4 -->Use `kable()` to display the table from 1.3. Who holds the indoor one-mile world record for IAAF women, and what was her time?
+<!--
+Remember the argument `booktabs = TRUE` is a quick way to make the table look nice!
+-->
+
+
+
+```{r}
+women_indoor %>%
+  kable(booktabs = TRUE)
+```
+
+Genzebe Dibaba holds the world record for women's indoor one mile with a time of 4:13.31.
+
+## <!-- 1.5 -->Create a dataframe called `women_outdoor` that contains the table for "Women's IAAF era" (starting with Anne Smith's record and ending with Sifan Hassan's record). Combine `women_indoor` and `women_outdoor` into one dataframe called `women_records` using the `bind_rows()` function.  Include a variable called `Type` in this new dataframe to indicate whether a particular observation corresponds to an indoor record or an outdoor record (*hint*: create `Type` separately in each dataframe before combining). Finally, arrange `women_records` by ascending time, drop the `Venue` variable, and display the table using `kable()`. Who holds the fastest record, and was it from an indoor or outdoor event?
+<!-- Note: you can break a `kable` table across pages in the pdf by using the argument `longtable = TRUE`
+-->
+
+
+
+```{r}
+
+```
+
+<!-- PROBLEM 2 ---------------------------------------------------------------->
+# <!-- 2 -->As we wrap up the chapter on ethics, what are three major takeaways from Chapter 8 that had an impact on how you think about approaching your work as a budding data scientist?
+
+
+
+<!--
+Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
+-->
