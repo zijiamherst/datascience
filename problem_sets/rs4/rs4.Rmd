@@ -175,7 +175,7 @@ women_records <- bind_rows(women_indoor,women_outdoor) %>%
   arrange(by = Time) %>%
   select(-Venue, -Auto)
 
-women_records %>% kable(bookTabs = TRUE, longtable = TRUE)
+women_records %>% kable(booktabs = TRUE, longtable = TRUE)
 ```
 
 Sifan Hassan holds the fastest mile for women running outdoors with a time of 4:12.33.
@@ -183,7 +183,11 @@ Sifan Hassan holds the fastest mile for women running outdoors with a time of 4:
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->As we wrap up the chapter on ethics, what are three major takeaways from Chapter 8 that had an impact on how you think about approaching your work as a budding data scientist?
 
+* The concept of unintentional algorithmic bias stood out to me a lot. It showed that being a data scientist goes much beyond being able to interpret an present data using computers, but rather there is a huge element of understanding the workings behind data. The fact that there is bias hidden in the data itself that could easily be missed and perpetuated is alerting. Critical analysis of the data we use and not just taking them for granted is something that adds another element to the complexity of the role. 
 
+* I think within the principles of being a data scientist lies a lot of potential conflicts. The first principle, "Use data to improve life for our users, customers, organizations, and communities", seems extremely hard to maintain. Often the interests of the users, organizations, and communities can be opposite of each other and to follow these principles in good faith sounds impossible to achieve. As with the CEO example of ethic dilemma, data is often used to convince people of a viewpoint rather than to discover new information.
+
+* In terms of privacy and disclosure, I feel like we are at a point of no return in terms of privacy. Despite policies like HIPAA and "similar regulations" that "protect information", the direction big data is heading towards is something that cannot be contained. There are simply too much digital footprints and too much profits in data for privacy to be maintained and I believe the task should be to utilize it positively rather than fighting the collection of data.
 
 <!--
 Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
