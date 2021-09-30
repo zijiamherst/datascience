@@ -1,6 +1,6 @@
 ---
 title: "Lab 8: Web scraping"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "September 28, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -116,12 +116,23 @@ For this lab, we'll need to modify and repeat this process many times to scrape 
 
 ## <!-- 1.2 -->Revisit the [List of Emily Dickinson's poems](https://en.wikipedia.org/wiki/List_of_Emily_Dickinson_poems) and recall how you scraped a single poem already (*September's Baccalaureate* above). Broadly speaking, what are the things you need to do to get to our final goal? Don't worry about the specific details yet---ignore the  functions and arguments you'll need in R and don't worry about the particular order of steps for now. 
 
-
+Scrape through the wikipedia table in order to get a list of all the links to the poems. Then pluck the poem from each of the URL.
 
 ## <!-- 1.3 -->One of your steps likely involved scraping the table that lists Emily Dickinson's poems. Use the code chunk below to do that, creating a dataframe called `poem_table`. Be sure to check that bots are allowed first, and make sure the column names of your dataframe are user-friendly or "clean" (*hint*: remember our friend `janitor::clean_names()` and/or you can rename the necessary columns yourself).
 
 ```{r}
+url <- "https://en.wikipedia.org/wiki/List_of_Emily_Dickinson_poems"
 
+paths_allowed(url)
+
+poem_table <- url %>%
+  read_html() %>%
+  html_nodes("table") %>%
+  purrr::pluck(1) %>%
+  html_table() %>%
+  janitor::clean_names()
+
+poem_table
 ```
 
 ## <!-- 1.4 -->Another important step is getting a list of all the URLs so we can iterate through each linked page to scrape the poem. There are couple approaches we might take to do this: piecing the URLs together ourselves, or scraping the URLs from the table. Click through five or so poems in the table to see the pages that contain the text of each poem. What do you notice about the URLs for the pages that contain the poem text? Can you identify a pattern in the URLs? Are there links that fall outside that patter? How might we piece together the URLs ourselves? What did you learn from Web Scraping 101 that would allow us to scrape the URLs from the table directly? 
@@ -131,7 +142,24 @@ For this lab, we'll need to modify and repeat this process many times to scrape 
 ## <!-- 1.5 -->Choose one of the two approaches from Part 1.4 to create a data frame that contains all the links we need to iterate through and the link titles. Verify you only have full links (i.e., starting with "https:"), then join that dataframe with your `poem_tables` dataframe.
 
 ```{r}
+links <- url %>%
+  read_html() %>%
+  html_elements("#mw-content-text > div.mw-parser-output > table > tbody > tr > td > a") %>%
+  html_attr("href")
 
+links_name <- url %>%
+  read_html() %>%
+  html_elements("#mw-content-text > div.mw-parser-output > table > tbody > tr > td > a") %>%
+  html_text()
+
+links_table <- tibble(first_line_often_used_as_title = links_name, url = links)
+  links_table %>%
+  filter(str_detect(url, "wikisource"))
+  
+poems <- poem_table %>%
+  left_join(links_table, by = c("first_line_often_used_as_title" = "first_line_often_used_as_title")) %>%
+  select(c("first_line_often_used_as_title","url"))
+poems
 ```  
 
 <!--
