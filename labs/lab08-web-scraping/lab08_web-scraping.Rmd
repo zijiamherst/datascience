@@ -188,7 +188,7 @@ Commit and push! "Scrape table and links"
 
 ```{r get-all-poems, eval = FALSE}
 # Identify number of iterations (start with 1, 5, 20, 50, etc.)
-n_links <- _CODE_TO_SET_VALUE_
+n_links <- 5
   
 # Pre-allocate space in dataframe for poem text
 poem_tibble <- poem_table[seq_len(n_links), ] %>% 
