@@ -83,6 +83,8 @@ library(kableExtra)
 library(robotstxt)
 library(gutenbergr)
 library(mdsr)
+library(tidytext)
+library(wordcloud)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -135,7 +137,7 @@ macbeth <- Macbeth_raw %>%
 #length(macbeth)
 ```
 
-`Macbeth_raw`stored the entirety of Macbeth on a single character vector, leading to the table containing a 1x1 table containing all of the text. By splitting the string up by the line breaks each line is then broken into a seperate row, showing that Macbeth has a total of 3194 rows.
+`Macbeth_raw` stored the entirety of Macbeth on a single character vector, leading to the table containing a 1x1 table containing all of the text. By splitting the string up by the line breaks each line is then broken into a seperate row, showing that Macbeth has a total of 3194 rows.
 
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->**Text as data** In Section 19.1.1, the `str_subset()`, `str_detect()`, and `str_which()` functions are introduced for detecting a pattern in a character vector (like finding a needle in a haystack). This section also introduces *regular expressions*.
@@ -183,7 +185,7 @@ str_subset(macbeth, "^MAC[B-Z]") %>% head()
 
 ## <!-- 2.4 -->**Optional** Explore these other patterns to figure out what they do.
 
-* I have no idea what the asterisk does.
+* I have no idea what the asterisk does and I'm having trouble undertsanding it.
 * ".MAC[B-Z]" searches for a pattern that can have anything precede "MAC[B-Z]"
 * "more$" searches for the pattern "more" at the end of the text
 * "^MAC[B|Z]" returns a zero length string because it searches for the pattern of either "MACB" or "MACZ" at the beginning of the text, since most texts have two spaces at the head, there are no returns.
@@ -206,7 +208,7 @@ str_subset(macbeth, "^MAC[B|Z]") %>% head()
 Remember to load any necessary packages in the `setup` code chunk!
 -->
 
-
+`stop_words` includes words in the english language that are used grammarically and doesn't indicate the subject of the text. `get_stopwords()` gets the library in a tidy format.
 
 ```{r wrangle-text}
 glimpse(DataSciencePapers)
