@@ -1,6 +1,6 @@
 ---
 title: "Lab 9: Text as data"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "October 5, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -130,6 +130,10 @@ When you are coding interactively, you'll want to make sure your working directo
 ```{r tokenize-words}
 poems_words_all <- poems %>%
   unnest_tokens(output = word, input = text)
+poems_words_all %>% 
+  head()
+poems %>%
+  head()
 ```
 
 ## <!-- 1.2 -->**Alternative tokens** The default unit for tokens is a word, but you can specify the `token =` option to tokenize the text by other functions, such as "characters", "ngrams" ($n$ words that occur together), "sentences", or "lines", among other options. Try one or more of these alternative options, using the help as a guide, and see how it changes the output (another option has been shown). 
@@ -137,8 +141,9 @@ poems_words_all <- poems %>%
 ```{r alt-tokens}
 poems_ngrams <- poems %>%
   unnest_tokens(output = bigram, input = text,
-                token = "ngrams", n = 2)
-
+                token = "sentences")
+poems_ngrams %>%
+  head()
 
 ```
 
@@ -164,7 +169,7 @@ poems_words <- poems_words_all %>%
 removed <- poems_words_all %>%
   anti_join(poems_words, by = "word") %>%
   count(word) %>%
-  arrange(word)
+  arrange(desc(n))
 ```
 
 <!-- Part 2 ------------------------------------------------------------------->
@@ -188,10 +193,21 @@ poems_words %>%
 
 ## <!--2.2 -->Run the same code but using the `poems_words_all` dataset. What do you notice about this graphic, and what does this tell us about the utility of removing stop words before analysis?
 
+This graphic contains almost completely of commonly used words that provide no insight into the text. This shows the importance of removing stop words before analysis.
 
 
 ```{r}
-
+poems_words_all %>%
+  count(word, sort = TRUE) %>% 
+  slice(1:10) %>%
+  ggplot(aes(x = reorder(word, n), y = n, 
+             color = word, fill = word)) +
+  geom_col() +
+  coord_flip() +
+  guides(color = "none", fill = "none") +
+  labs(x = NULL,
+       y = "Number of instances",
+       title = "The most common words in\nEmily Dickinson's poems")
 ```
 
 ## <!--2.3 -->To recap, it really only took 4 lines of code to get from our scraped dataset to a dataset formatted for plotting word frequencies:
@@ -249,7 +265,20 @@ wordcloud(words = word_frequencies$word,
 ##  <!-- 3.3-->**Your turn!** Create your own word cloud with 100 words.
 
 ```{r}
-
+wordcloud(words = word_frequencies$word, 
+          freq = word_frequencies$n,
+          min.freq = 20,
+          max.words = 100,
+          # plot the words in a random order
+          random.order = TRUE,
+          # specify the range of the size of the words
+          scale = c(2, 0.3),
+          # specify proportion of words with 90 degree rotation
+          rot.per = 0.15,
+          # colors words from least to most frequent
+          colors = mypal,
+          # font family
+          family = "sans")
 ```
 
 <!-- Part 4 ------------------------------------------------------------------->
@@ -302,24 +331,27 @@ ggplot(data = top_tfidf, aes(x = reorder(word, tf_idf), y = tf_idf,
 ```{r afinn-lex}
 # Type "Yes" to download if prompted
 afinn_lexicon <- get_sentiments("afinn")
-
+afinn_lexicon %>% filter(word == "slick")
 ```
+
+Slick has a postive rating of 2. I can't think of a negative sentiment for "slick".
 
 ##  <!-- 5.2 -->Use the `get_sentiments()` function to create a dataframe `nrc_lexicon` that holds the NRC Word-Emotion Association lexicon (Mohammad 2010).  The NRC lexicon catergoizes words as yes/no for the following sentiment categories: positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise, and trust.  What does each row in this dataset represent? (Hint: it's *not* the same as the `afinn_lexicon` dataset.)
 
 
 
 ```{r}
-
+nrc_lexicon <- get_sentiments(lexicon = "nrc")
+nrc_lexicon
 ```
 
 ##  <!-- 5.3 -->User (and Consumer!) Beware: Do you see any issues in applying these lexicons (developed fairly recently) to the Emily Dickinson poems?
 
- 
+ The english language has evolved in a way in which the connotations are no longer the same and applying modern lexicons to older text can interpret it incorrectly.
 
 ##  <!-- 5.4 -->The lexicons are based on unigrams.  Do you see any disadvantages of basing the sentiment on single words?
 
-
+Some multiple word phrases could contain a lot more sentiments.
 
 ##  <!-- 5.5 -->We can calculate how many words used in the poems are not found in the lexicons using the code below.  List a few words that are not in the NRC lexicon that appear in the poems.  What proportion of unigrams observed within this corpora of Dickinson poems are *not* scored by the NRC lexicon?
 
@@ -329,12 +361,32 @@ afinn_lexicon <- get_sentiments("afinn")
 nrc_missed_words <- word_frequencies %>%
   anti_join(nrc_lexicon, by = "word")
 
+nrc_missed_words
+
+nrc_missed_words %>% nrow() / word_frequencies %>% nrow()
+
 ```
+
+"day", "heart", "earth" are all not listed.
+78% of the words are no included in the lexicon.
 
 ##  <!-- 5.6 -->With these (rather important!) drawbacks in mind, let's go ahead and view the top words by sentiment classified by the NRC lexicon. That is, create a figure of the top 10 words under each sentiment, facetted by sentiment, for the following sentiments: anger, anticipation, fear, joy, surprise, and trust.  You can use code given in earlier chunks to guide you.
 
 ```{r}
-
+nrc_dickenson <- word_frequencies %>%
+  inner_join(nrc_lexicon, by = "word") %>%
+  group_by(sentiment) %>% 
+  select(sentiment = c("anger","anticipation","fear","joy","surprise","trust")) %>%
+  
+  arrange(desc(n)) %>%
+  slice(1:10)
+nrc_dickenson
+nrc_dickenson %>%
+  ggplot(aes(x = reorder(word, n), y = n, fill = sentiment)) + 
+  geom_col() + 
+  facet_wrap(~sentiment, nrow = 3) + 
+  coord_flip()
+nrc_dickenson
 ```
 
 ##  <!-- 5.7 -->How might you summarize the sentiment of this corpus using the AFINN lexicon?
