@@ -1,7 +1,7 @@
 ---
-title: "YOUR TITLE HERE"
+title: "Work Distractions"
 subtitle: "SAT 231: Calendar Query"
-author: "YOUR NAME HERE"
+author: "Ziji Zhou"
 date: "Last updated \\today"
 output: pdf_document
 ---
@@ -35,7 +35,7 @@ Please rename the headings.
 You may add subheadings as desired to break up the report. 
 -->
 
-# YOUR REPORT HEADING <!-- (e.g., How do I spend my time?) -->
+# How Much Distractions Do I Have During Work <!-- (e.g., How do I spend my time?) -->
 
 <!--
 The code below is provided as a starting point for importing an `ics` file into R as a dataframe, doing some initial wrangling, and adding up the time spent on each activity. You are not required to use this code, so delete or modify it as you see fit. 
@@ -47,7 +47,7 @@ https://support.google.com/calendar/answer/37111?hl=en&ref_topic=10509946
 -->
 ```{r, eval = FALSE}
 # Data import and preliminary wrangling
-calendar_data <- "/Users/zijizhou/Downloads/Calendar\ Query_7fhbb7ap32kh844fklt7cca3sc@group.calendar.google.com.ics" %>% 
+distractions_data <- "Distractions.ics" %>% 
   # Use ical package to import into R
   ical_parse_df() %>% 
   # Convert to "tibble" data frame format
@@ -62,12 +62,38 @@ calendar_data <- "/Users/zijizhou/Downloads/Calendar\ Query_7fhbb7ap32kh844fklt7
     # Convert calendar entry to all lowercase and rename
     activity = tolower(summary))
 
+schoolwork_data <- "Schoolwork.ics" %>% 
+  # Use ical package to import into R
+  ical_parse_df() %>% 
+  # Convert to "tibble" data frame format
+  as_tibble() %>% 
+  mutate(
+    # Use lubridate package to wrangle dates and times
+    start_datetime = with_tz(start, tzone = "America/New_York"),
+    end_datetime = with_tz(end, tzone = "America/New_York"),
+    # duration_sec = end_datetime - start_datetime,
+    duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
+    date = floor_date(start_datetime, unit = "day"),
+    # Convert calendar entry to all lowercase and rename
+    activity = tolower(summary),
+    # Split activity column into work and class columns
+    type = substring(activity, 0, regexpr(", ", activity) - 1),
+    class = substring(activity, regexpr(", ", activity) + 2))
+  
+
 # Compute total duration of time for each day & activity
-activities <- calendar_data %>% 
-  group_by(date, activity) %>%
-  summarize(duration_mins = sum(duration_sec))
-calendar_data
+activities <- schoolwork_data %>% 
+  group_by(type) %>%
+  summarize(duration_sec = sum(duration_sec)) %>%
+  arrange(desc(duration_sec))
+distractions <- distractions_data %>%
+  group_by(activity) %>%
+  summarise(duration_sec = sum(duration_sec)) %>%
+  arrange(desc(duration_sec))
+schoolwork_data
+distractions_data
 activities
+distractions
 ```
 
 <!--
