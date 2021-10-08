@@ -11,6 +11,7 @@ output: pdf_document
 library(tidyverse)
 library(lubridate)
 library(ical)
+library(RColorBrewer)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -45,7 +46,7 @@ If you are using the code, be sure to update the capitalized parts with the rele
 As a reminder here's the link for exporting a Google calendar to ics (if on a Mac, you can hold cmd + click to open the page):
 https://support.google.com/calendar/answer/37111?hl=en&ref_topic=10509946
 -->
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 # Data import and preliminary wrangling
 distractions_data <- "Distractions.ics" %>% 
   # Use ical package to import into R
@@ -58,9 +59,17 @@ distractions_data <- "Distractions.ics" %>%
     end_datetime = with_tz(end, tzone = "America/New_York"),
     # duration_sec = end_datetime - start_datetime,
     duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
-    date = floor_date(start_datetime, unit = "day"),
     # Convert calendar entry to all lowercase and rename
-    activity = tolower(summary))
+    activity = tolower(summary))  %>%
+  # Pivot longer into start and end time
+  pivot_longer(c("start","end"), names_to = "Start/End", values_to = "time") %>%
+  mutate(
+    # Get time of day
+    time_of_day = hms::hms(seconds = second(time), minutes = minute(time), hours = hour(time)),
+    # Get date as a categorical variable
+    date = floor_date(time, unit = "day"),
+    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/")
+  )
 
 schoolwork_data <- "Schoolwork.ics" %>% 
   # Use ical package to import into R
@@ -73,14 +82,21 @@ schoolwork_data <- "Schoolwork.ics" %>%
     end_datetime = with_tz(end, tzone = "America/New_York"),
     # duration_sec = end_datetime - start_datetime,
     duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
-    date = floor_date(start_datetime, unit = "day"),
     # Convert calendar entry to all lowercase and rename
     activity = tolower(summary),
     # Split activity column into work and class columns
     type = substring(activity, 0, regexpr(", ", activity) - 1),
-    class = substring(activity, regexpr(", ", activity) + 2))
+    class = substring(activity, regexpr(", ", activity) + 2))  %>%
+  # Pivot longer into start and end time
+  pivot_longer(c("start","end"), names_to = "Start/End", values_to = "time") %>%
+  mutate(
+    # Get time of day
+    time_of_day = hms::hms(seconds = second(time), minutes = minute(time), hours = hour(time)),
+    # Get date as a categorical variable
+    date = floor_date(time, unit = "day"),
+    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/")
+  )
   
-
 # Compute total duration of time for each day & activity
 activities <- schoolwork_data %>% 
   group_by(type) %>%
@@ -90,28 +106,54 @@ distractions <- distractions_data %>%
   group_by(activity) %>%
   summarise(duration_sec = sum(duration_sec)) %>%
   arrange(desc(duration_sec))
+```
+
+
+```{r, eval = FALSE}
+# Display the data
 schoolwork_data
 distractions_data
 activities
 distractions
+
 ```
 
 <!--
 Describe your question(s) here.  Briefly describe your data collection process, including how you defined variables of interest.
 -->
 
+* What type of distractions do I interrupt each types of work and for which class? 
+* In which class am I the most productive? What type of work? What time of day? (Productiveness is defined by the amount of distractions during that period of work)
 
-
+  My data collection process involved logging the each time I sit down seriously to do schoolwork. I would take note the class and type of work (split between problems, reading, and writing). For each time I go away from my work I would take note of when I started going off track and when I returned as a seperate data set. My distractions were categorically split into phone, text, talk, food, web, restroom, music.
 
 <!--
 Describe what information is conveyed through data visualization #1 (that you'll create below) here.
 -->
 
+This visualization presents my work over the two weeks of data collection. The x axis is the date and the y axis indicates the time of that day. Each class work is divided up by color to help present which class am I the most productive (or as the data came out to be, unproductive). The red streaks within the wider transparent blocks represent each distraction and the proportion of the work time it took up.
 
 
-
-```{r}
+```{r, fig.width=15, fig.height=20}
 # Code for data visualization #1
+schoolwork_data %>%
+  ggplot(aes(x = reorder(time_of_day,time_of_day), y = reorder(date_chr,date_chr))) +
+  scale_x_reverse() +
+  geom_line(aes(color = class, 
+                group = uid), 
+            size = 10, 
+            alpha = 0.3) + 
+  geom_line(data = distractions_data ,
+            aes(group = uid), 
+            size = 3, 
+            alpha = 0.8,
+            color = "red") +
+  coord_flip() +
+  labs(title = "Timeline of my Schoolwork and Distractions", 
+       x = "Hour",
+       y = "Date",
+       color = "Distractions")
+  
 # Be sure to provide meaningful title and axes labels 
 ```
 
