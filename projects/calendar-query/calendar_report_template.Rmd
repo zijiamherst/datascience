@@ -68,7 +68,10 @@ distractions_data <- "Distractions.ics" %>%
     time_of_day = hms::hms(seconds = second(time), minutes = minute(time), hours = hour(time)),
     # Get date as a categorical variable
     date = floor_date(time, unit = "day"),
-    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/")
+    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/"),
+    type = NA,
+    class = NA,
+    work_uid = NA
   )
 
 schoolwork_data <- "Schoolwork.ics" %>% 
@@ -96,7 +99,26 @@ schoolwork_data <- "Schoolwork.ics" %>%
     date = floor_date(time, unit = "day"),
     date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/")
   )
+
+# Attach type of work to distractions
+for(i in 1:nrow(distractions_data)){
   
+  for(x in 1:nrow(schoolwork_data)){
+    
+    if(x%%2 == 1 && i%%2 == 1){
+      if(as.POSIXct(distractions_data$time[i]) %within% interval(as.POSIXct(schoolwork_data$time[x]),as.POSIXct(schoolwork_data$time[x+1]))){
+        distractions_data$class[i] = as.character(schoolwork_data$class[x])
+        distractions_data$type[i] = as.character(schoolwork_data[x,"type"])
+        distractions_data$work_uid[i] = as.character(schoolwork_data[x,"uid"])
+        distractions_data$class[i+1] = as.character(schoolwork_data$class[x])
+        distractions_data$type[i+1] = as.character(schoolwork_data[x,"type"])
+        distractions_data$work_uid[i+1] = as.character(schoolwork_data[x,"uid"])
+      }
+    }
+  }
+  
+}
+
 # Compute total duration of time for each day & activity
 activities <- schoolwork_data %>% 
   group_by(type) %>%
@@ -137,22 +159,23 @@ This visualization presents my work over the two weeks of data collection. The x
 ```{r, fig.width=15, fig.height=20}
 # Code for data visualization #1
 schoolwork_data %>%
-  ggplot(aes(x = reorder(time_of_day,time_of_day), y = reorder(date_chr,date_chr))) +
-  scale_x_reverse() +
-  geom_line(aes(color = class, 
+  ggplot(aes(x = as.POSIXct(time_of_day), y = reorder(date_chr,date_chr))) +
+  scale_x_datetime(date_breaks = "1 hours",
+                   date_labels = "%H:%M",
+                   expand = c(0, 0)) +
+  geom_line(aes(color = type, 
                 group = uid), 
             size = 10, 
             alpha = 0.3) + 
   geom_line(data = distractions_data ,
-            aes(group = uid), 
+            aes(group = uid,
+                color = "Distractions"), 
             size = 3, 
-            alpha = 0.8,
-            color = "red") +
-  coord_flip() +
+            alpha = 0.8) +
+  facet_wrap(~class, nrow = 4) +
   labs(title = "Timeline of my Schoolwork and Distractions", 
        x = "Hour",
-       y = "Date",
-       color = "Distractions")
+       y = "Date")
   
 # Be sure to provide meaningful title and axes labels 
 ```
@@ -165,6 +188,7 @@ Describe what information is conveyed through data visualization #2 (that you'll
 
 ```{r}
 # Code for data visualization #2
+ggplot()
 # Be sure to provide meaningful title and axes labels 
 ```
 
