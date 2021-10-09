@@ -138,8 +138,10 @@ Describe your question(s) here.  Briefly describe your data collection process, 
 * What type of distractions do I interrupt each types of work and for which class? 
 * In which class am I the most productive? What type of work? What time of day? (Productiveness is defined by the amount of distractions during that period of work)
 
-  My data collection process involved logging the each time I sit down seriously to do schoolwork. I would take note the class and type of work (split between problems, reading, and writing). For each time I go away from my work I would take note of when I started going off track and when I returned as a seperate data set. My distractions were categorically split into phone, text, talk, food, web, restroom, music.
+My data collection process involved logging the each time I sit down seriously to do schoolwork. I would take note the class and type of work (split between problems, reading, and writing). For each time I go away from my work I would take note of when I started going off track and when I returned as a seperate data set. My distractions were categorically split into phone, text, talk, food, web, restroom, music.
 
+\newpage
+# First Graph
 <!--
 Describe what information is conveyed through data visualization #1 (that you'll create below) here.
 -->
@@ -147,7 +149,8 @@ Describe what information is conveyed through data visualization #1 (that you'll
 This visualization presents my work over the two weeks of data collection. The x axis is the date and the y axis indicates the time of that day. Each type of work is divided up by color and class faceted into my four rows to help present which class am I the most productive (or as the data came out to be, unproductive). The orange streaks within the wider transparent blocks represent each distraction and the proportion of the work time it took up.
 
 
-```{r, fig.width=15, fig.height=20}
+```{r, fig.width=15, fig.height=20}  
+# Be sure to provide meaningful title and axes labels 
 # Code for data visualization #1
 schoolwork_data %>%
   ggplot(aes(x = as.POSIXct(time_of_day), y = reorder(date_chr,desc(date_chr)))) +
@@ -168,17 +171,20 @@ schoolwork_data %>%
        x = "Hour",
        y = "Date",
        color = "Colors")
-  
-# Be sure to provide meaningful title and axes labels 
+
 ```
 
 <!--
 Describe what information is conveyed through data visualization #2 (that you'll create below) here.
 -->
-
+\newpage
+# Second Graph
 This faceted bar graph shows the distribution of my time with each class and my distractions during them. The y axis displays the minutes while the x is the class the bar represents. The graph is faceted for each type of work and the corresponding distractions. Each distraction is then divided up into color to show which type of distraction is most common for each type of work.
 
-```{r,fig.width=15, fig.height=8}
+```{r,fig.width=15, fig.height=20}
+  
+# Be sure to provide meaningful title and axes labels 
+
 schoolwork_summary <- schoolwork_data %>%
   group_by(type, class) %>%
   summarize(duration_sec = sum(duration_sec)/2) %>%
@@ -195,15 +201,18 @@ schoolwork_summary %>%
   geom_col(width = 0.9, alpha = 0.5, fill = "red") +
   geom_col(data = distractions_summary, aes(fill = summary), width = 0.75) +
   scale_fill_brewer(palette = "Set2") +
-  facet_wrap(~class, nrow = 1) +
+  coord_flip() +
+  facet_wrap(~class, nrow = 4) +
   scale_fill_discrete(name = "Distractions") +
   labs(title = "Productivity of each class",
        x = "Class",
        y = "Time spent in minutes",
        color = "Distractions")
-  
-# Be sure to provide meaningful title and axes labels 
+
 ```
+\newpage
+
+# Table
 
 <!--
 Describe what information is conveyed through the table (that you'll create below) here.
@@ -223,16 +232,15 @@ or
 My table is a summary of every individual work session and its corresponding distractions, seperated by class. The table shows the total sessions and distractions, average time per distraction and work session, and finally the proportion of time I spent each session distracted.
 
 ```{r, results = 'asis'}
+# Code for table
 schoolwork_total <- schoolwork_data %>%
   group_by(class) %>%
   summarise(total_time_spent = sum(duration_sec),
-            number = n()/2,
             average_work = mean(duration_sec/2))
 
 distractions_total <- distractions_data %>%
   group_by(class) %>%
-  summarise(total_time_distracted = sum(duration_sec), 
-            number = n()/2,
+  summarise(total_time_distracted = sum(duration_sec),
             average_distraction = mean(duration_sec/2))
 
 total_summary <- schoolwork_total%>%
@@ -241,8 +249,8 @@ total_summary <- schoolwork_total%>%
   arrange(desc(total_time_spent))
 
 total_summary %>%
-  kable(col.names = c("Class", "Total time spent", "Total times worked", "Average time per session", "Total time distracted", "Total distractions", "Average time per distraction", "Proportion distracted"), digits = 2, booktabs = TRUE)
-# Code for table
+  kable(col.names = c("Class", "Total time spent", "Avg session", "Total time distracted", "Avg distraction", "Proportion"), digits = 2, booktabs = TRUE)
+
 ```
 
 <!--
@@ -252,7 +260,7 @@ To conclude, briefly summarize what you found in response to the questions posed
 Through my data collection and visualization I was able to get an idea of what leads to the most distractions. Surprisingly my reading for art market had the least amount of distractions, an explanation could be because it has the least work and every time I start reading I have an end in sight. It seems that the afternoon period is the least productive for me with lots of distractions during that period. In addition, using my phone is the most common and time consuming distraction, showing up no matter time period nor class. I think by silencing my phone and placing it far away could do wonders for my productivity. Lastly, short periods of study contains the least time spent being distracted, perhaps short burst sessions of work is better for me?
 
 \newpage
-# YOUR REFLECTION HEADING <!-- e.g., Reflection -->
+# Reflections on Data Collection <!-- e.g., Reflection -->
 
 <!--
 Write your one-page reflection here in paragraph form.  In particular, address:
@@ -268,5 +276,20 @@ Write your one-page reflection here in paragraph form.  In particular, address:
 * As someone who analyzes others' data, what ethical responsibilities do you have?
 -->
 
+Upon embarking this project I was excited at the possibility of finding patterns in my work study habits. As I was gathering ideas for what type of data to collect and what questions I can answer I realized just how much data is in our lives. The biggest difficulty was selecting the specific data points that will answer my questions before doing any actual data science work. In my case I collected the data points:
 
+* time spent work
+* which class
+* what type of work (problems, writing, reading)
+* time spent distracted
+* which type of distraction
 
+The process of collecting data was difficult in a few ways. Mainly I had a problem remembering to log down every time I get distracted. Considering I would be in the middle of hard work looking for some relief, it was hard initially to suddenly rememeber to mark down the exact time I had started getting off track. On top of that, the act of gathering data itself skewed my data. By going on my computer to log the time it would provide a temptation to go on other programs on my phone or computer.
+
+I think a good way to avoid these problems in the future is to observe and collect data as a thrid party observer. By not interacting with the subject it would become a much more focused job (and thus minimizing instances where I would forget to log data) and impacting the data itself. Having a more defined question and draft of the data visualization and wrangling before even starting would help massively in understanding which data points are important to consider. 
+
+For data on economics and sports it seems sometimes that there can never be too much data. I maintain this stance as long as the collector understands which data points are more significant. I think once the data wrangling and visualization starts there can be a unforseen need to supplement the study with additional data. Sports and economics are luckily two sectors that are extremely data reliant, each with years of professionals refining the craft of data collection and a vast variety of online resources that are easy to access. The difficulty then becomes the interpretation and careful selection of the significant parts of the massive databases that are available.
+
+When I provide data to the tech companies that exist today, I have zero expectations for privacy. The use for data is simply too lucrative and I believe it is somewhat naïve to expect anything other than almost public access to the data that I provide for the internet. Everything digital is becoming fully connected, if not already. It is then our job to utilize the data in an ethical and positive way rather than fight this new era of openness and lack of privacy.
+
+While analyzing other's data, it is important to consider the implications of the publications. Simple mistakes like forgetting to label logartihmic scales can have far reaching effects of misinformation once shown to specific groups of people. Data is often used as a tool for agendas and we must provide enough context within our analysis to prevent the misuse of our work. Making sure that we are gathering the data ethically is also important, especially when it comes to web scraping.
