@@ -12,6 +12,7 @@ library(tidyverse)
 library(lubridate)
 library(ical)
 library(RColorBrewer)
+library(kableExtra)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -60,7 +61,7 @@ distractions_data <- "Distractions.ics" %>%
     # duration_sec = end_datetime - start_datetime,
     duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
     # Convert calendar entry to all lowercase and rename
-    activity = tolower(summary))  %>%
+    activity = summary)  %>%
   # Pivot longer into start and end time
   pivot_longer(c("start","end"), names_to = "Start/End", values_to = "time") %>%
   mutate(
@@ -86,7 +87,7 @@ schoolwork_data <- "Schoolwork.ics" %>%
     # duration_sec = end_datetime - start_datetime,
     duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
     # Convert calendar entry to all lowercase and rename
-    activity = tolower(summary),
+    activity = summary,
     # Split activity column into work and class columns
     type = substring(activity, 0, regexpr(", ", activity) - 1),
     class = substring(activity, regexpr(", ", activity) + 2))  %>%
@@ -116,18 +117,8 @@ for(i in 1:nrow(distractions_data)){
       }
     }
   }
-  
 }
 
-# Compute total duration of time for each day & activity
-activities <- schoolwork_data %>% 
-  group_by(type) %>%
-  summarize(duration_sec = sum(duration_sec)) %>%
-  arrange(desc(duration_sec))
-distractions <- distractions_data %>%
-  group_by(activity) %>%
-  summarise(duration_sec = sum(duration_sec)) %>%
-  arrange(desc(duration_sec))
 ```
 
 
@@ -153,13 +144,13 @@ Describe your question(s) here.  Briefly describe your data collection process, 
 Describe what information is conveyed through data visualization #1 (that you'll create below) here.
 -->
 
-This visualization presents my work over the two weeks of data collection. The x axis is the date and the y axis indicates the time of that day. Each class work is divided up by color to help present which class am I the most productive (or as the data came out to be, unproductive). The red streaks within the wider transparent blocks represent each distraction and the proportion of the work time it took up.
+This visualization presents my work over the two weeks of data collection. The x axis is the date and the y axis indicates the time of that day. Each type of work is divided up by color and class faceted into my four rows to help present which class am I the most productive (or as the data came out to be, unproductive). The orange streaks within the wider transparent blocks represent each distraction and the proportion of the work time it took up.
 
 
 ```{r, fig.width=15, fig.height=20}
 # Code for data visualization #1
 schoolwork_data %>%
-  ggplot(aes(x = as.POSIXct(time_of_day), y = reorder(date_chr,date_chr))) +
+  ggplot(aes(x = as.POSIXct(time_of_day), y = reorder(date_chr,desc(date_chr)))) +
   scale_x_datetime(date_breaks = "1 hours",
                    date_labels = "%H:%M",
                    expand = c(0, 0)) +
@@ -175,7 +166,8 @@ schoolwork_data %>%
   facet_wrap(~class, nrow = 4) +
   labs(title = "Timeline of my Schoolwork and Distractions", 
        x = "Hour",
-       y = "Date")
+       y = "Date",
+       color = "Colors")
   
 # Be sure to provide meaningful title and axes labels 
 ```
@@ -184,11 +176,32 @@ schoolwork_data %>%
 Describe what information is conveyed through data visualization #2 (that you'll create below) here.
 -->
 
+This faceted bar graph shows the distribution of my time with each class and my distractions during them. The y axis displays the minutes while the x is the class the bar represents. The graph is faceted for each type of work and the corresponding distractions. Each distraction is then divided up into color to show which type of distraction is most common for each type of work.
 
+```{r,fig.width=15, fig.height=8}
+schoolwork_summary <- schoolwork_data %>%
+  group_by(type, class) %>%
+  summarize(duration_sec = sum(duration_sec)/2) %>%
+  arrange(desc(duration_sec))
 
-```{r}
+distractions_summary <- distractions_data %>%
+  group_by(type, class, summary) %>%
+  summarize(duration_sec = sum(duration_sec)/2) %>%
+  arrange(desc(duration_sec))
+
 # Code for data visualization #2
-ggplot()
+schoolwork_summary %>%
+  ggplot(aes(x = type, y = duration_sec/60)) +
+  geom_col(width = 0.9, alpha = 0.5, fill = "red") +
+  geom_col(data = distractions_summary, aes(fill = summary), width = 0.75) +
+  scale_fill_brewer(palette = "Set2") +
+  facet_wrap(~class, nrow = 1) +
+  scale_fill_discrete(name = "Distractions") +
+  labs(title = "Productivity of each class",
+       x = "Class",
+       y = "Time spent in minutes",
+       color = "Distractions")
+  
 # Be sure to provide meaningful title and axes labels 
 ```
 
@@ -210,12 +223,28 @@ or
 
 
 ```{r, results = 'asis'}
+schoolwork_total <- schoolwork_data %>%
+  group_by(class) %>%
+  summarise(total_time_spent = sum(duration_sec))
+
+distractions_total <- distractions_data %>%
+  group_by(class) %>%
+  summarise(total_time_distracted = sum(duration_sec))
+
+total_summary <- schoolwork_total%>%
+  inner_join(distractions_total, by = c("class" = "class")) %>%
+  mutate(proportion_distracted = as.double(total_time_distracted)/as.double(total_time_spent)) %>%
+  arrange(desc(total_time_spent))
+
+total_summary %>%
+  kable(col.names = c("Class", "Total time spent", "Total time distracted", "Proportion distracted"), booktabs = TRUE)
 # Code for table
 ```
 
 <!--
 To conclude, briefly summarize what you found in response to the questions posed here.
 -->
+
 
 
 \newpage
