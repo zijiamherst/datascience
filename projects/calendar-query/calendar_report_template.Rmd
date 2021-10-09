@@ -249,7 +249,7 @@ total_summary %>%
 To conclude, briefly summarize what you found in response to the questions posed here.
 -->
 
-
+Through my data collection and visualization I was able to get an idea of what leads to the most distractions. Surprisingly my reading for art market had the least amount of distractions, an explanation could be because it has the least work and every time I start reading I have an end in sight. It seems that the afternoon period is the least productive for me with lots of distractions during that period. In addition, using my phone is the most common and time consuming distraction, showing up no matter time period nor class. I think by silencing my phone and placing it far away could do wonders for my productivity. Lastly, short periods of study contains the least time spent being distracted, perhaps short burst sessions of work is better for me?
 
 \newpage
 # YOUR REFLECTION HEADING <!-- e.g., Reflection -->
@@ -267,5 +267,6 @@ Write your one-page reflection here in paragraph form.  In particular, address:
 
 * As someone who analyzes others' data, what ethical responsibilities do you have?
 -->
+
 
 
