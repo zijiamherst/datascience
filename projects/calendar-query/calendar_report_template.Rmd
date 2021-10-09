@@ -220,16 +220,20 @@ or
   https://cran.r-project.org/web/packages/xtable/vignettes/xtableGallery.pdf
 -->
 
-
+My table is a summary of every individual work session and its corresponding distractions, seperated by class. The table shows the total sessions and distractions, average time per distraction and work session, and finally the proportion of time I spent each session distracted.
 
 ```{r, results = 'asis'}
 schoolwork_total <- schoolwork_data %>%
   group_by(class) %>%
-  summarise(total_time_spent = sum(duration_sec))
+  summarise(total_time_spent = sum(duration_sec),
+            number = n()/2,
+            average_work = mean(duration_sec/2))
 
 distractions_total <- distractions_data %>%
   group_by(class) %>%
-  summarise(total_time_distracted = sum(duration_sec))
+  summarise(total_time_distracted = sum(duration_sec), 
+            number = n()/2,
+            average_distraction = mean(duration_sec/2))
 
 total_summary <- schoolwork_total%>%
   inner_join(distractions_total, by = c("class" = "class")) %>%
@@ -237,7 +241,7 @@ total_summary <- schoolwork_total%>%
   arrange(desc(total_time_spent))
 
 total_summary %>%
-  kable(col.names = c("Class", "Total time spent", "Total time distracted", "Proportion distracted"), booktabs = TRUE)
+  kable(col.names = c("Class", "Total time spent", "Total times worked", "Average time per session", "Total time distracted", "Total distractions", "Average time per distraction", "Proportion distracted"), digits = 2, booktabs = TRUE)
 # Code for table
 ```
 
