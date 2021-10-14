@@ -1,0 +1,455 @@
+---
+title: "Lab 10: Networks"
+author: "Your Name"
+date: "October 7, 2021"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+  # html_document:
+  #   toc: yes
+  #   toc_float: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  - \AtBeginEnvironment{quote}{\sffamily}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Part \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Lab}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Lab
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+
+library(ggnetwork)
+library(igraph)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+      size = "small", # slightly smaller code font
+      message = FALSE,
+      warning = FALSE,
+      # center figures by default
+      fig.align = "center",
+      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+# **About this lab** {-}
+Did you know the [Emily Dickinson Museum](https://www.emilydickinsonmuseum.org/) is located within walking distance of the Amherst College campus? Prof. Horton started a tradition of taking his Data Science students to visit the museum. We won't be continuing that tradition, but I encourage you to take a tour once it opens again (closed for a major restoration project until Spring 2022)! 
+
+Today we're going to analyze Dickinson's poetry. The text for her poems were scraped from Wikipedia (the final web scraping code I used is available on Moodle).
+
+## **Packages** {-}
+
+We have two new packages for this lab:
+
+1. the **ggnetwork** package, which provides network geometries (such as `geom_edges()` and `geom_nodes()`) and easy graphing of networks in `ggplot()`; and
+2. the **igraph** package
+
+Make sure you load each package in the `setup` code chunk above. 
+\normalfont
+
+
+<!-- Part 1 ------------------------------------------------------------------->
+# <!-- 1 -->**Country Migration Network** The following dataset contains migration counts for decades between 1960 and 2000 between the origin (`origincode`) and destination (`destcode`) countries given in the data. We are going to look at the migration flows of females in 2000. 
+
+```{r}
+migration_flows <- read_csv("data/migration-flows.csv")
+
+head(migration_flows, n = 10)
+
+arrange(migration_flows, destcode, origincode) %>%
+ head(n = 10)
+```
+
+## <!-- 1.1 -->First, we need to do some very minor wrangling to get our data ready for analyzing as a network: (1) include only rows with *positive* counts of female migration in 2000 and (2) keep only the variables `destcode`, `origincode`, and `Y2000`. How many rows are in this dataset?
+
+
+
+```{r}
+migration_flows_fem <- migration_flows %>%
+ filter(sex == "Female", Y2000 > 0) %>%
+ select(origincode, destcode, Y2000)
+```
+
+## <!-- 1.2 -->This dataframe can be used to create a directional network object (called an "igraph") with edges indicating migration from the origin county to a destination country for the migration network of females in 2000. How many nodes are in this network? How many edges? 
+
+> *Notes*: we'll be using `graph_from_data_frame()` from the **igraph** package. The order of the columns matters for directed graphs (first is the origin; second is the destination; third, if any, is an edge attribute).
+
+
+
+```{r}
+migration_igraph <- graph_from_data_frame(migration_flows_fem,
+           directed = TRUE)
+summary(migration_igraph)
+
+# Get descriptions and counts of vertices
+V(migration_igraph)
+vcount(migration_igraph)
+
+# Get descriptions and counts of edges
+E(migration_igraph)
+ecount(migration_igraph)
+
+# Get edge attribute
+edge_attr(migration_igraph, name = "Y2000") %>% 
+ head()
+
+# Could also graph from edge list but need to 
+## 1. create edge list matrix
+migration_el <- migration_flows_fem %>%
+ select(origincode, destcode) %>% 
+ as.matrix()
+
+## 2. create edge graph structure
+migration_el_igraph <- graph_from_edgelist(el = migration_el, directed = TRUE)
+
+## 3. add Y2000 as an edge attribute
+migration_el_igraph <- set_edge_attr(graph = migration_el_igraph, 
+                   name = "Y2000", 
+                   value = migration_flows_fem$Y2000)
+
+summary(migration_el_igraph)
+```
+
+## <!-- 1.3 -->Now, we can create a visualization of this network using `ggnetwork()` to convert the igraph object to a network object, and `ggplot()` to plot the network graph.
+
+```{r, fig.align = "center", fig.height = 3.5}
+migration_network <- ggnetwork(migration_igraph)
+head(migration_network)
+
+ggplot(data = migration_network, aes(x = x, y = y, 
+          xend = xend, yend = yend)) +
+ geom_edges(arrow = arrow(type = "closed", length = unit(8, "pt")),
+    color = "lightgray") +
+ geom_nodes() +
+ geom_nodelabel(aes(label = name)) +
+ theme_blank()
+```
+
+## <!-- 1.4 -->Eeek, that's crowded! Let's focus on migration for the following eastern European countries (according to UN classification). Run the code below to create a new migration flows dataset with only these countries.
+
+> * Belarus (BLR)
+> * Bulgaria (BGR)
+> * Czech Republic (CZE)
+> * Hungary (HUN)
+> * Moldova (MDA)
+> * Poland (POL)
+> * Romania (ROM)
+> * Russia (RUS)
+> * Slovakia (SVK)
+> * Ukraine (UKR)
+
+```{r}
+east_europe <- c("BLR","BGR","CZE","HUN","MDA",
+    "POL","ROM", "RUS","SVK","UKR")
+
+migration_easteur <- migration_flows_fem %>%
+ filter(destcode %in% east_europe, 
+   origincode %in% east_europe)
+```
+
+## <!-- 1.5 -->Follow the steps from 1.2 and 1.3 to create a similar visualization but just for the eastern European countries selected, using only the minimal code you need to accomplish the task (e.g., you don't need to count edges). 
+
+```{r, fig.align = "center", fig.height = 3.5}
+
+```
+
+<!-- Part 2 ------------------------------------------------------------------->
+# <!-- 2 -->**Customizing the network graph** The plot of this network is much clearer than a plot of the entire network. We can see that some countries like Russia and Belarus are not popular migration destinations while other countries, like Poland and Hungary are (though we can't see the numbers migrating into these countries from this graph). Let's see how we can customize the network graph further.
+
+## <!-- 2.1 -->Recalling that `Y2000` represents female migration in 2000, is this an edge or vertex attribute?
+
+
+
+## <!-- 2.2 -->Let's modify the graph so that edge width is a function of migration flow size. In `ggplot()` we can do this using the `size` option in `geom_edges()`. 
+
+```{r, fig.align = "center", fig.height = 3.5}
+ggplot(data = migration_easteur_network, 
+    aes(x = x, y = y, 
+      xend = xend, yend = yend)) +
+ geom_edges(arrow = arrow(type = "closed", angle = 10),
+       color = "gray50",
+       aes(size = Y2000)) +
+ geom_nodelabel(aes(label = name)) +
+ labs(title = "Eastern European migration",
+    subtitle = "Among females in 2000",
+    size = "Number who migrated") +
+ theme_blank()
+```
+
+## <!-- 1.8 -->We could, instead, map edge color to the migration flow size. Which do you think is the more effective visual cue in this case?
+
+
+
+```{r, fig.align = "center", fig.height = 3.5}
+ggplot(data = migration_easteur_network, 
+    aes(x = x, y = y, 
+      xend = xend, yend = yend)) +
+ geom_edges(arrow = arrow(type = "closed", length = unit(8, "pt")), 
+      aes(color = Y2000)) +
+ geom_nodelabel(aes(label = name)) +
+ labs(title = "Eastern European migration",
+    subtitle = "Among females in 2000",
+    color = "Number who migrated") +
+ theme_blank()
+```
+
+## <!-- 1.9-->Run the code below to see the same plot with a different color scheme. Is this more or less effective (or about the same)? 
+
+
+
+```{r, fig.align = "center", fig.height = 3.5}
+ggplot(data = migration_easteur_network,
+    aes(x = x, y = y, 
+      xend = xend, yend = yend)) +
+ geom_edges(arrow = arrow(type = "closed", length = unit(8, "pt")),
+       curvature = 0.1,
+       aes(color = Y2000)) +
+ scale_color_continuous(type = "viridis") +
+ geom_nodes(size = 5) +
+ geom_nodelabel_repel(aes(label = name)) +
+ labs(title = "Eastern European migration",
+    subtitle = "Among females in 2000",
+    color = "Number who migrated") +
+ theme_blank()
+```
+
+<!-- Part 2 ------------------------------------------------------------------->
+# <!-- 2 -->**Network centrality statistics** Let's consider some centrality statistics for the Eastern European migration network. We'll use `degree()` and `strength()` from the **igraph** package for this.
+
+## <!-- 2.1 -->Based on *degree centrality*, which country(countries) were most central to the migration network of Eastern Europe in 2000? Does the answer differ depending on whether we consider all edges (total degree), or only outgoing edges (out-degree; how many destinations were there from that origin country?) or only incoming edges (in-degree; how many origins were there to that destination country?)?
+
+
+
+```{r}
+igraph::degree(migration_easteur_igraph) 
+
+igraph::degree(migration_easteur_igraph, mode = "out")
+
+igraph::degree(migration_easteur_igraph, mode = "in") 
+```
+
+## <!-- 2.2 -->The `degree()` function only counts the number of edges of each node, but it does not account for the varying weights of those edges. We can use the `strength()` function to compute the weighted degrees instead. Do the same countries stand out as having high degree centrality after considering the weighted edges?
+
+
+
+```{r}
+# Get edge weights 
+migration_edge_weights <- edge_attr(migration_easteur_igraph, name = "Y2000")
+
+# Total movement
+strength(migration_easteur_igraph, weights = migration_edge_weights)
+
+# Total movement out
+strength(migration_easteur_igraph, weights = migration_edge_weights, mode = "out") 
+
+# Total movement in
+strength(migration_easteur_igraph, weights = migration_edge_weights, mode = "in")
+```
+
+<!-- Part 3 ------------------------------------------------------------------->
+# <!-- 3 -->**Your turn: Network of Thrones** Consider the data described in the article, [*Network of Thrones*](https://www-jstor-org.ezproxy.amherst.edu/stable/10.4169/mathhorizons.23.4.18) (Beveridge and Shan, 2017). **tl;dr**: George R.R. Martin's fantasy novel, *A Storm of Swords*, was first published in 2000. About 13 years later, the first half of the novel was adapted for television in the third season of HBO's *Game of Thrones* (GoT). We have a dataset on character interactions in the novel, *A Storm of Swords*. Two characters are connected if their names appear within 15 words of one another in the novel. The dataset provides the edge lists and weights from the novel. The edge weight counts the number of these occurances. The edge list is not directed (even though the variables names suggest such).
+
+```{r}
+got <- read_csv("data/storm-of-swords.csv")
+```
+
+## <!-- 3.1 -->*Active recall (text as data!)*: Suppose, instead of the formatted data above, we had the entire text of the novel. List some of the steps (in English or pseudocode) required to wrangle the data into the form above.
+
+
+
+## <!-- 3.2 -->How many GoT characters (nodes) and character interactions (edges) are in this network? 
+
+
+
+```{r}
+# Create igraph object
+
+
+# Identify number of nodes and edges
+
+```
+
+## <!-- 3.3 -->What proportion of possible edges are realized? This proportion is referred to as the "density" of a graph, which is a measure of how close the number of observed edges are to the maximal possible number of edges. Density ranges from 0 (least dense or sparser) to 1 (most dense) and can be obtained with the `edge_density()` function from **igraph**. Use this function to get the density, and verify it's correct by calculating the density yourself. 
+
+> Note: The number of *possible* edges in an undirected graph is ${V \choose 2} = \frac{V(V-1)}{2}$.
+
+
+
+```{r}
+
+```
+
+## <!-- 3.4 -->The function `is_connected()` returns "TRUE" if a graph is connected and "FALSE" otherwise. Is this graph connected? And if so, what does that mean? How would you be able to tell that the graph was connected by looking at Figure 2 in the [*Network of Thrones*](https://www-jstor-org.ezproxy.amherst.edu/stable/10.4169/mathhorizons.23.4.18) paper?
+
+
+
+```{r}
+
+```
+
+## <!-- 3.5 -->Use the code below to compute the diameter of the network. Interpret the value.
+
+
+
+```{r}
+diameter(got_igraph, directed = FALSE)
+```
+
+<!-- Part 4 ------------------------------------------------------------------->
+# <!-- 4 -->**Network of Thrones: Centrality statistics** Next, let's consider the centrality statistics for characters in the network. The node degree counts the number of characters that a given character (node) is associated with. The weighted degree (given by `strength()`) is the sum of the edge weights for edges connecting one character (node) to other characters. In other words, the strength counts the total number of interactions a character has with others in the network. Below, we compute the degree and strength of each node, and combine these vectors into a dataframe. 
+
+<!-- Set eval = TRUE when you get to this code chunk -->
+```{r, eval = FALSE}
+got_stats <- data.frame(name = vertex_attr(got_igraph, "name"),
+            degree = degree(got_igraph),
+            strength = strength(got_igraph,
+                      weights = edge_attr(got_igraph, "Weight")))
+```
+
+## <!-- 4.1 -->Who are the five characters with highest degree? Highest weighted degree? Verify that these values (look like they) match those in Figure 3 of the [*Network of Thrones*](https://www-jstor-org.ezproxy.amherst.edu/stable/10.4169/mathhorizons.23.4.18) paper. 
+
+
+
+```{r}
+
+```
+
+## <!-- 4.2 -->Explain how Robb can have higher degree than Bran but lower weighted degree.
+
+
+
+```{r}
+
+```
+
+## <!-- 4.3 -->Now consider the (unweighted) *betweenness* measure of centrality. In the code below, we use the `betweenness()` function to calculate the unweighted betweenness of the nodes, and add this statistics to the `got_stats` data frame using `add_column()`. Verify that the top ranked characters match those shown in Figure 3 of the *Network of Thrones* paper.
+
+
+
+<!-- Set eval = TRUE when you get to this code chunk -->
+```{r, eval = FALSE}
+got_stats <- got_stats %>% 
+ add_column(betweenness = betweenness(got_igraph, weights = NA))
+
+```
+
+<!-- Part 5 ------------------------------------------------------------------->
+# <!-- 5 -->**Network of Thrones: Eigenvector centrality and Google PageRank** Lastly, let's consider eigenvector centrality and Google PageRank. The *Network of Thrones* paper gives a simple description of the page rank centrality measure. The basic idea is that a node will have a higher page rank value (and higher "centrality") if it is connected to important nodes. The page rank of node $i$ is a function of the weighted sum of the page ranks of its neighbors (who $i$ is connected to) with weights given by the edge weight between node $i$ and its neighbor, divided by the total weighted degree of the neighbor. 
+
+> *Example:* Consider the page ranks of Catelyn and Hodor. Both are connected to Bran, who has a weighted degree of 344. Bran has a total of 4 interactions with Catelyn so his page rank value is weighted by the fraction 4/344, or `r round(4/344, 2)`, when computing Catelyn's page rank. But Hodor's page rank calculation is influenced much more by Bran's value, since he has 96 interactions with Bran, which makes up a 96/344, or `r round(96/344,2)`, fraction of all of Bran's interactions. In this way, Hodor's page rank will be closer to Bran's value because he has more interactions with him than Catelyn. 
+
+## <!-- 5.1 -->Add two variables to the `got_stats` dataframe: one with the unweighted eigenvector centrality, and a second with the unweighted page rank. Which characters score in the top 5 according to the page rank measure?
+
+
+
+<!-- Set eval = TRUE when you get to this code chunk -->
+```{r, eval = FALSE}
+got_stats <- got_stats %>% 
+ add_column(eigen = eigen_centrality(got_igraph, directed = FALSE, 
+                                     weights = NA) %>% 
+              purrr::pluck("vector"),
+       page_rank = page_rank(got_igraph, directed = FALSE, 
+                             weights = NA) %>% 
+         purrr::pluck("vector"))
+
+```
+
+## <!-- 5.2 -->How can a character like Daenerys have such a high page rank, and a high rank for betweenness, but a low degree? (You can use Figure 2 in the *Network of Thrones* paper to visualize the structure.)
+
+
+
+```{r}
+
+```
+
+## <!-- 5.3 -->Finally, plot the network with node or label size determined by the page rank value. 
+
+```{r}
+# Add page rank as a vertex attribute
+
+
+# Graph network
+
+```
+
+       
+
+<!-- Part 6 ------------------------------------------------------------------->
+# <!-- 6 -->**Bonus!: Community detection** Done already? Let's get a head start on *clustering*, a form of unsupervised learning we'll talk about next month! Community detection in networks is a process of finding clusters of nodes (communities) that are highly connected within a cluster and have few connections across clusters. Figure 2 in the *Network of Thrones* paper uses color to denote the 7 communities found in their analysis. There are a variety of algorithms to do this, but most depend on calculating the *modularity* of the cluster assignment, which is a measure of how well a network can be divided into clusters. Modularity compares the edge weight between two nodes in the same cluster to the expected weight between the two nodes under a random assignment of edges. The higher the modularity value, the better the division into clusters (with a max value of 1). 
+
+## <!-- 6.1 -->In *Network of Thrones*, the authors use the Louvain algorithm, which is a hierarchical method similar to hierarchical clustering for unsupervised learning. Nodes start out as individual clusters, then are merged together to create communities to increase modularity the most at each step (in a local, greedy way). The algorithm stops when the modularity value can't be increased by an additional step. Run the code below to implement Louvain clustering and compute the modularity.
+
+```{r}
+# Identify clusters using Louvain algorithm
+got_cl <- cluster_louvain(got_igraph)
+got_cl
+
+# Compute modularity from Louvain clustering 
+modularity(got_cl)
+```
+
+## <!-- 6.2 -->After clustering, we can determine how many nodes are in each detected cluster (i.e., how many characters are in each detected community). How many communities are there, and how many characters are there in each community?
+
+```{r}
+communities(got_cl)
+```
+
+## <!-- 6.3 -->You can plot the network in base R with the following code, but this graph is harder to customize.
+
+```{r}
+plot(got_cl, got_igraph)
+```
+
+## <!-- 6.4 -->Create a (better) plot of the network with `ggplot()`, and color by group membership.
+```{r fig.height = 6.5}
+# Get community membership
+got_membership <- membership(got_cl)
+
+# Add community membership as vertex attribute
+
+
+# Create a plot
+
+```
