@@ -1,6 +1,6 @@
 ---
 title: "Lab 10: Networks"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "October 7, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -110,6 +110,7 @@ arrange(migration_flows, destcode, origincode) %>%
 migration_flows_fem <- migration_flows %>%
  filter(sex == "Female", Y2000 > 0) %>%
  select(origincode, destcode, Y2000)
+# 13805 rows
 ```
 
 ## <!-- 1.2 -->This dataframe can be used to create a directional network object (called an "igraph") with edges indicating migration from the origin county to a destination country for the migration network of females in 2000. How many nodes are in this network? How many edges? 
@@ -187,12 +188,25 @@ east_europe <- c("BLR","BGR","CZE","HUN","MDA",
 migration_easteur <- migration_flows_fem %>%
  filter(destcode %in% east_europe, 
    origincode %in% east_europe)
+
+
 ```
 
 ## <!-- 1.5 -->Follow the steps from 1.2 and 1.3 to create a similar visualization but just for the eastern European countries selected, using only the minimal code you need to accomplish the task (e.g., you don't need to count edges). 
 
 ```{r, fig.align = "center", fig.height = 3.5}
+migration_easteur_igraph <- graph_from_data_frame(migration_easteur,
+           directed = TRUE)
 
+migration_easteur_network <- ggnetwork(migration_easteur_igraph)
+
+ggplot(data = migration_easteur_network, aes(x = x, y = y, 
+          xend = xend, yend = yend)) +
+ geom_edges(arrow = arrow(type = "closed", length = unit(8, "pt")),
+    color = "lightgray") +
+ geom_nodes() +
+ geom_nodelabel(aes(label = name)) +
+ theme_blank()
 ```
 
 <!-- Part 2 ------------------------------------------------------------------->
@@ -200,7 +214,7 @@ migration_easteur <- migration_flows_fem %>%
 
 ## <!-- 2.1 -->Recalling that `Y2000` represents female migration in 2000, is this an edge or vertex attribute?
 
-
+vertex
 
 ## <!-- 2.2 -->Let's modify the graph so that edge width is a function of migration flow size. In `ggplot()` we can do this using the `size` option in `geom_edges()`. 
 
@@ -237,7 +251,7 @@ ggplot(data = migration_easteur_network,
 
 ## <!-- 1.9-->Run the code below to see the same plot with a different color scheme. Is this more or less effective (or about the same)? 
 
-
+The outlier of Ukraine to Russia is too large that it skews all the other edges to a very light color.
 
 ```{r, fig.align = "center", fig.height = 3.5}
 ggplot(data = migration_easteur_network,
@@ -260,7 +274,7 @@ ggplot(data = migration_easteur_network,
 
 ## <!-- 2.1 -->Based on *degree centrality*, which country(countries) were most central to the migration network of Eastern Europe in 2000? Does the answer differ depending on whether we consider all edges (total degree), or only outgoing edges (out-degree; how many destinations were there from that origin country?) or only incoming edges (in-degree; how many origins were there to that destination country?)?
 
-
+Russia was the most central in both in, out, and total.
 
 ```{r}
 igraph::degree(migration_easteur_igraph) 
@@ -293,21 +307,28 @@ strength(migration_easteur_igraph, weights = migration_edge_weights, mode = "in"
 
 ```{r}
 got <- read_csv("data/storm-of-swords.csv")
+
+got
 ```
 
 ## <!-- 3.1 -->*Active recall (text as data!)*: Suppose, instead of the formatted data above, we had the entire text of the novel. List some of the steps (in English or pseudocode) required to wrangle the data into the form above.
 
-
+Create a loop that runs through every character name mention in the book. For every name mention check the next 15 words to see if it matches with an item in a vector of character names. If so store the two characters in a two column data frame before summarizing it to get the weight.
 
 ## <!-- 3.2 -->How many GoT characters (nodes) and character interactions (edges) are in this network? 
 
-
+107 nodes and 352 edges.
 
 ```{r}
 # Create igraph object
 
+got_igraph <- graph_from_data_frame(got, directed = FALSE)
 
 # Identify number of nodes and edges
+
+vcount(got_igraph)
+
+ecount(got_igraph)
 
 ```
 
@@ -319,6 +340,8 @@ got <- read_csv("data/storm-of-swords.csv")
 
 ```{r}
 
+edge_density(got_igraph)
+
 ```
 
 ## <!-- 3.4 -->The function `is_connected()` returns "TRUE" if a graph is connected and "FALSE" otherwise. Is this graph connected? And if so, what does that mean? How would you be able to tell that the graph was connected by looking at Figure 2 in the [*Network of Thrones*](https://www-jstor-org.ezproxy.amherst.edu/stable/10.4169/mathhorizons.23.4.18) paper?
@@ -326,12 +349,12 @@ got <- read_csv("data/storm-of-swords.csv")
 
 
 ```{r}
-
+is_connected(got_igraph)
 ```
 
 ## <!-- 3.5 -->Use the code below to compute the diameter of the network. Interpret the value.
 
-
+Every character is at most 6 characters apart.
 
 ```{r}
 diameter(got_igraph, directed = FALSE)
@@ -341,7 +364,7 @@ diameter(got_igraph, directed = FALSE)
 # <!-- 4 -->**Network of Thrones: Centrality statistics** Next, let's consider the centrality statistics for characters in the network. The node degree counts the number of characters that a given character (node) is associated with. The weighted degree (given by `strength()`) is the sum of the edge weights for edges connecting one character (node) to other characters. In other words, the strength counts the total number of interactions a character has with others in the network. Below, we compute the degree and strength of each node, and combine these vectors into a dataframe. 
 
 <!-- Set eval = TRUE when you get to this code chunk -->
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 got_stats <- data.frame(name = vertex_attr(got_igraph, "name"),
             degree = degree(got_igraph),
             strength = strength(got_igraph,
@@ -353,7 +376,7 @@ got_stats <- data.frame(name = vertex_attr(got_igraph, "name"),
 
 
 ```{r}
-
+got_stats %>% arrange(desc(degree),strength)
 ```
 
 ## <!-- 4.2 -->Explain how Robb can have higher degree than Bran but lower weighted degree.
@@ -369,9 +392,11 @@ got_stats <- data.frame(name = vertex_attr(got_igraph, "name"),
 
 
 <!-- Set eval = TRUE when you get to this code chunk -->
-```{r, eval = FALSE}
+```{r, eval = TRUE}
 got_stats <- got_stats %>% 
  add_column(betweenness = betweenness(got_igraph, weights = NA))
+
+got_stats %>% arrange(desc(degree),strength)
 
 ```
 
