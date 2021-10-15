@@ -67,7 +67,7 @@ justice,justice_2,justice_3,state_c,position,succeeded,date_confirmed_vote,tenur
 64,,Joseph Rucker Lamar(1857–1916),GA,AssociateJustice,Moody,"December 15, 1910(Acclamation)","January 3, 1911[j]–January 2, 1916(Died)","4 years, 364 days",William Howard Taft
 65,,Mahlon Pitney(1858–1924),NJ,AssociateJustice,J. Harlan,"March 13, 1912(50–26)","March 18, 1912–December 31, 1922(Resigned)","10 years, 288 days",William Howard Taft
 66,,James Clark McReynolds(1862–1946),TN,AssociateJustice,Lurton,"August 29, 1914(44–6)","October 12, 1914–January 31, 1941(Retired)","26 years, 111 days",Woodrow Wilson
-67,,Louis Brandeis(1856–1941),KY,AssociateJustice,J. Lamar,"June 1, 1916(47–22)","June 5, 1916–February 13, 1939(Retired)","22 years, 253 days",Woodrow Wilson
+67,,Louis Brandeis(1856–1941),MA,AssociateJustice,J. Lamar,"June 1, 1916(47–22)","June 5, 1916–February 13, 1939(Retired)","22 years, 253 days",Woodrow Wilson
 68,,John Hessin Clarke(1857–1945),OH,AssociateJustice,Hughes,"July 24, 1916(Acclamation)","October 9, 1916–September 18, 1922(Retired)","5 years, 344 days",Woodrow Wilson
 69,,William Howard Taft(1857–1930),CT,ChiefJustice,E. D. White,"June 30, 1921(Acclamation)","July 11, 1921–February 3, 1930(Retired)","8 years, 207 days",Warren G. Harding
 70,,George Sutherland(1862–1942),UT,AssociateJustice,Clarke,"September 5, 1922(Acclamation)","October 2, 1922–January 17, 1938(Retired)","15 years, 107 days",Warren G. Harding
@@ -109,14 +109,14 @@ justice,justice_2,justice_3,state_c,position,succeeded,date_confirmed_vote,tenur
 103,,Antonin Scalia(1936–2016),VA,AssociateJustice,Rehnquist,"September 17, 1986(98–0)","September 26, 1986–February 13, 2016(Died)","29 years, 140 days",Ronald Reagan
 104,,Anthony Kennedy(born 1936),CA,AssociateJustice,Powell,"February 3, 1988(97–0)","February 18, 1988–July 31, 2018(Retired)","30 years, 163 days",Ronald Reagan
 105,,David Souter(born 1939),NH,AssociateJustice,Brennan,"October 2, 1990(90–9)","October 9, 1990–June 29, 2009(Retired)","18 years, 263 days",George H. W. Bush
-106,,Clarence Thomas(born 1948),GA,AssociateJustice,T. Marshall,"October 15, 1991(52–48)","October 23, 1991–Incumbent","29 years, 344 days[o]",George H. W. Bush
+106,,Clarence Thomas(born 1948),GA,AssociateJustice,T. Marshall,"October 15, 1991(52–48)","October 23, 1991–Incumbent","29 years, 352 days[o]",George H. W. Bush
 107,,Ruth Bader Ginsburg(1933–2020),NY,AssociateJustice,B. White,"August 3, 1993(96–3)","August 10, 1993–September 18, 2020 (Died)","27 years, 39 days",Bill Clinton
-108,,Stephen Breyer(born 1938),MA,AssociateJustice,Blackmun,"July 29, 1994(87–9)","August 3, 1994–Incumbent","27 years, 60 days[o]",Bill Clinton
-109,,John Roberts(born 1955),MD,ChiefJustice,Rehnquist,"September 29, 2005(78–22)","September 29, 2005–Incumbent","16 years, 3 days[o]",George W. Bush
-110,,Samuel Alito(born 1950),NJ,AssociateJustice,O'Connor,"January 31, 2006(58–42)","January 31, 2006–Incumbent","15 years, 244 days[o]",George W. Bush
-111,,Sonia Sotomayor(born 1954),NY,AssociateJustice,Souter,"August 6, 2009(68–31)","August 8, 2009–Incumbent","12 years, 55 days[o]",Barack Obama
-112,,Elena Kagan(born 1960),MA,AssociateJustice,Stevens,"August 5, 2010(63–37)","August 7, 2010–Incumbent","11 years, 56 days[o]",Barack Obama
-113,,Neil Gorsuch(born 1967),CO,AssociateJustice,Scalia,"April 7, 2017(54–45)","April 10, 2017–Incumbent","4 years, 175 days[o]",Donald Trump
-114,,Brett Kavanaugh(born 1965),MD,AssociateJustice,Kennedy,"October 6, 2018(50–48)","October 6, 2018–Incumbent","2 years, 361 days[o]",Donald Trump
-115,,Amy Coney Barrett(born 1972),IN,AssociateJustice,Ginsburg,"October 26, 2020(52–48)","October 27, 2020–Incumbent",340 days[o],Donald Trump
+108,,Stephen Breyer(born 1938),MA,AssociateJustice,Blackmun,"July 29, 1994(87–9)","August 3, 1994–Incumbent","27 years, 68 days[o]",Bill Clinton
+109,,John Roberts(born 1955),MD,ChiefJustice,Rehnquist,"September 29, 2005(78–22)","September 29, 2005–Incumbent","16 years, 11 days[o]",George W. Bush
+110,,Samuel Alito(born 1950),NJ,AssociateJustice,O'Connor,"January 31, 2006(58–42)","January 31, 2006–Incumbent","15 years, 252 days[o]",George W. Bush
+111,,Sonia Sotomayor(born 1954),NY,AssociateJustice,Souter,"August 6, 2009(68–31)","August 8, 2009–Incumbent","12 years, 63 days[o]",Barack Obama
+112,,Elena Kagan(born 1960),MA,AssociateJustice,Stevens,"August 5, 2010(63–37)","August 7, 2010–Incumbent","11 years, 64 days[o]",Barack Obama
+113,,Neil Gorsuch(born 1967),CO,AssociateJustice,Scalia,"April 7, 2017(54–45)","April 10, 2017–Incumbent","4 years, 183 days[o]",Donald Trump
+114,,Brett Kavanaugh(born 1965),MD,AssociateJustice,Kennedy,"October 6, 2018(50–48)","October 6, 2018–Incumbent","3 years, 4 days[o]",Donald Trump
+115,,Amy Coney Barrett(born 1972),IN,AssociateJustice,Ginsburg,"October 26, 2020(52–48)","October 27, 2020–Incumbent",348 days[o],Donald Trump
 Justice,Justice,Justice,State[c],Position,Replacing,Date confirmed(Vote),Tenure,Tenure length,Nominated by

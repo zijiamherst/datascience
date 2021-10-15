@@ -1,6 +1,6 @@
 ---
 title: "Practice Set 5"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Friday"
 urlcolor: blue
 linkcolor: blue
@@ -97,6 +97,7 @@ Source(s) and corresponding problem(s)
 # load packages
 library(tidyverse)
 library(kableExtra)
+library(robotstxt)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -120,7 +121,8 @@ options(scipen = 1, knitr.kable.NA = '')
 ```{r}
 url <- "https://en.wikipedia.org/wiki/List_of_justices_of_the_Supreme_Court_of_the_United_States"
 
-
+# paths_allowed(url)
+# SSL certificate not working
 ```
 
 ## <!-- 1.1 -->Go to the [List of Justices of the Supreme Court of the United States](https://en.wikipedia.org/wiki/List_of_justices_of_the_Supreme_Court_of_the_United_States). Create a new R script called "scrape-justices.R", and scrape the table of justices. Use `janitor::clean_names()` to tidy the names of the columns (do not do any additional wrangling beyond this for now), then write the final data frame to a csv file called "justices.csv" in the "data" folder using the `write_csv()` function. Commit and push both files in addition to this Rmd file when ready.
@@ -131,6 +133,23 @@ Add your code from justices.R to the code chunk below.
 We do not want to re-run the code when we knit (we just want it to appear in the final pdf for the grader), so leave eval = FALSE in the chunk below.
 -->
 ```{r, eval = FALSE}
+library(tidyverse)
+library(kableExtra)
+library(robotstxt)
+library(rvest)
+library(purrr)
+
+url <- "https://en.wikipedia.org/wiki/List_of_justices_of_the_Supreme_Court_of_the_United_States"
+
+justice_data <- url %>%
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
+  read_html() %>%
+  html_nodes("table") %>%
+  html_table() %>%
+  purrr::pluck(2) %>%
+  janitor::clean_names() %>%
+  write_csv("problem_sets/ps5/data/justices.csv")
+
 
 ```
 
@@ -139,23 +158,34 @@ We do not want to re-run the code when we knit (we just want it to appear in the
 
 
 ```{r, fig.width = 3.6, fig.height = 2.4, fig.align = "center"}
+justices <- read_csv("data/justices.csv")
+
 
 # Run after loading your justices.csv file
 justices <- justices %>%
   # Remove extra line that comes in at end of table
   filter(justice != "Justice") %>%
+  
   # Some justices served <1 year; add "0 years," to make separating easier
   mutate(tenure_length = case_when(str_detect(tenure_length_d, "year") ~ tenure_length_d,
                                    TRUE ~ paste0("0 years, ", tenure_length_d))) %>% 
   separate(tenure_length, into = c("years_char", "days_char"),
            sep = ", ") %>% 
   mutate(tenure_years = parse_number(years_char) + (parse_number(days_char)/365)) %>%
+  
   # Make date_confirmed_vote into date variable
   separate(date_confirmed_vote, into = c("date_confirmed", "vote"),
            sep = "\\(") %>%
   mutate(date_confirmed = lubridate::mdy(date_confirmed))
 
+justices %>%
+  ggplot(aes(x = tenure_years)) +
+  geom_histogram(bins = 15) +
+  labs(x = "Tenure in years",
+       title = "US Justice Tenure Length")
 ```
+
+This data shows a slightly skewed right data distribution of tenure lengths, most falling between 5-20 years of tenure.
 
 <!-- PROBLEM 2 ---------------------------------------------------------------->
 # <!-- 2 -->**Brainy Quotes** One theme of college (and life) is resilience. The code in the `scrape-resilience` chunk below scrapes a set of quotes returned from a search for "resilience" on BrainyQuote.com. The code in `display-quote` randomly selects one of those quotes and prints it.  When you're feeling frustrated, run that code chunk to randomly generate a quote to lift you up (or just make you laugh at the uselessness of the quote...some of them are pretty pathetic).
