@@ -123,9 +123,8 @@ Scrape through the wikipedia table in order to get a list of all the links to th
 ```{r}
 url <- "https://en.wikipedia.org/wiki/List_of_Emily_Dickinson_poems"
 
-paths_allowed(url)
-
-poem_table <- url %>%
+poem_table <- url %>% 
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
   read_html() %>%
   html_nodes("table") %>%
   purrr::pluck(1) %>%
@@ -142,12 +141,15 @@ poem_table
 ## <!-- 1.5 -->Choose one of the two approaches from Part 1.4 to create a data frame that contains all the links we need to iterate through and the link titles. Verify you only have full links (i.e., starting with "https:"), then join that dataframe with your `poem_tables` dataframe.
 
 ```{r}
-links <- url %>%
+links <- url %>% 
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
   read_html() %>%
-  html_elements("#mw-content-text > div.mw-parser-output > table > tbody > tr > td > a") %>%
-  html_attr("href")
+  html_elements("#mw-content-text > div.mw-parser-output > table > tbody > tr > td > a")
 
-links_name <- url %>%
+links
+
+links_name <- url %>% 
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
   read_html() %>%
   html_elements("#mw-content-text > div.mw-parser-output > table > tbody > tr > td > a") %>%
   html_text()
@@ -157,7 +159,7 @@ links_table <- tibble(first_line_often_used_as_title = links_name, url = links)
   filter(str_detect(url, "wikisource"))
   
 poems <- poem_table %>%
-  left_join(links_table, by = c("first_line_often_used_as_title" = "first_line_often_used_as_title")) %>%
+  left_join(links, by = c("first_line_often_used_as_title" = "first_line_often_used_as_title")) %>%
   select(c("first_line_often_used_as_title","url"))
 poems
 ```  
