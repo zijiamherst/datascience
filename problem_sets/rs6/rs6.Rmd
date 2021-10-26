@@ -1,6 +1,6 @@
 ---
 title: "Reading Set 6"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "Due by 10pm ET on Monday"
 urlcolor: blue
 linkcolor: blue
@@ -80,7 +80,9 @@ You can resubmit your work as many times as you want before the deadline, so you
 # load packages
 library(tidyverse)
 library(kableExtra)
-
+library(sf)
+library(ggspatial)
+library(leaflet)
 
 # set code chunk defaults
 knitr::opts_chunk$set(tidy = F, # display code as typed
@@ -143,6 +145,8 @@ ggplot(cholera_deaths) +
   annotation_map_tile(type = "osm", zoomin = 0) + 
   geom_sf(aes(size = Count), alpha = 0.7)
 ```
+The points are not matching up with the map projection. This is because of the different formats of map coordinate data stored on the projection and data points.
+
 
 ## <!-- 1.4 -->Set the coordinates from the cholera data as the `espg:27700` coordinate system using `st_set_crs()`, then transform them to the `espg:4326` system using `st_transform()`, and finally plot the new, correctly projected data.
 
@@ -175,7 +179,7 @@ ggplot(cholera_latlong) +
 Dynamic plot will not knit to pdf so set `eval = FALSE`
 -->
 
-```{r}
+```{r, eval=FALSE}
 # create dynamic map
 leaflet() %>% 
   addTiles() %>%
@@ -190,7 +194,7 @@ leaflet() %>%
                    stroke = FALSE,
                    fillOpacity = 0.7)
 ```
-
+There is indeed a death right in the middle of Hopkins St as well as the pump on the intersection.
 <!--
 Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
 -->
