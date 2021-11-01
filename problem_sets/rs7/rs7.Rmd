@@ -1,0 +1,183 @@
+---
+title: "Reading Set 7"
+author: "Your Name"
+date: "Due by 10pm ET on Monday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Problem \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Problem set}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Problem set
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Reading Set Information** {-}
+
+A more thorough reading and light practice of the textbook reading prior to class allows us to jump into things more quickly in class and dive deeper into topics. As you actively read the textbook, you will work through the Reading Sets to help you engage with the new concepts and skills, often by replicating on your own the examples covered in the book. 
+
+*These should be completed on your own without help from your peers*. While most of our work in this class will be collaborative, it is important each individual completes the active readings.  The problems should be straightforward based on the textbook readings, but if you have any questions, feel free to ask me!
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. 
+
+5. You should occasionally *push* the updated version of the .Rmd file back onto GitHub. When you are ready to push, you can click on the Git pane and then click **Push**. You can also do this after each commit in RStudio by clicking **Push** in the top right of the *Commit* pop-up window. 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" (it's okay to leave out the date if you don't need it) before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+\normalfont
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!-- PROBLEM 1 ---------------------------------------------------------------->
+# <!-- 1 -->**$k$-means clustering** Section 12.1.2 walks through an example of how $k$-means clustering can identify genuine patterns in data---in this case, clustering cities into continental groups merely based on city location (longitude and latitude coordinates).  The textbook code is modified below to parse out some of the steps for using the `kmeans()` function of the **mclust** package and to add the centroid locations to a reproduction of Figure 12.4. *Note*: the data for this example comes from the **mdsr** package.
+
+# <!-- 1.1 -->Run the code below to implement the k-means algorithm.  *Note*: The $k$-means clustering algorithm starts by choosing $k$ points at random as initial guesses of where the cluster centroids might be. The `nstart` option specifies how many different configurations of initial guesses we want the algorithm to try, and the algorithm reports the results from the best initial configuration. It is generally recommended to specify `nstart` with a large value (e.g., 20 or 50). Take a look at the resulting output for each object in the code chunk in some way (print in the console, `glimps()`, or `head()`).
+
+```{r}
+data(world_cities)
+
+# Identify the 4,000 biggest cities in the world
+big_cities <- world_cities %>%
+  arrange(desc(population)) %>%
+  head(4000) %>%
+  select(longitude, latitude)
+
+# Make sure to set seed for reproducibility!
+set.seed(15)
+city_kmeans_results <- big_cities %>% 
+  kmeans(centers = 6, nstart = 30) 
+```
+
+## <!-- 1.2 -->The textbook code skips over much of the important output we get from running the `kmeans()` function (*note*: it's not clear that the fitted clusters are worth grabbing---we can get assigned clusters from the `kmeans()` output already!). The code below reports on the class of the `city_kmeans_results` and the named elements we can refer to and select from that class. What type of object is `city_kmeans_results`? What named elements does the object contain and what information does each element give us? *Hint*: the **Value** section of the help documention will help you understand what each named element is. 
+
+
+
+```{r}
+# Check object class or type
+class(city_kmeans_results)
+
+# Check named elements of object
+names(city_kmeans_results)
+```
+
+## <!-- 1.3 -->Where are the estimated centroids of the 6 clusters? How many cities were assigned to the first cluster? Which cluster contains the most cities?
+
+
+
+```{r}
+# Centroids
+city_kmeans_results$centers
+
+# Cluster sizes
+city_kmeans_results$size
+```
+
+## <!-- 1.4 -->Run the code below to create a plot of the assigned clusters. What do you think Cluster 2 represents? 
+
+```{r}
+# Join cluster assignments with original dataset
+big_cities <- big_cities %>% 
+  add_column(cluster = factor(city_kmeans_results$cluster))
+
+# Make dataframe out of estimated cluster centroids
+city_cluster_centers <- city_kmeans_results$centers %>%
+  data.frame() %>% 
+  add_column(cluster_number = 1:6)
+
+# Plot cluster assignments and centroids
+ggplot(big_cities, aes(x = longitude, y = latitude)) +
+  geom_point(aes(color = cluster), alpha = 0.6)  + 
+  scale_color_brewer(palette = "Spectral") +
+  geom_label(data = city_cluster_centers, 
+             aes(label = cluster_number), 
+             size = 3) + 
+  theme(legend.position = "none")
+```
+
+## <!-- 1.5 -->In $k$-means clustering, the analyst specifies the number of clusters to create.  Update the `center` argument within the `kmeans()` function to identify 3 clusters instead of 6.  Create a plot like the one above, but coloring the points by these new cluster assignments.  How many cities are in Cluster 1 now?  What does Cluster 2 represent now?
+
+
+
+```{r}
+
+```
+
+## <!-- 1.5 -->Update the `center` argument within the `kmeans()` function to identify 15 clusters.  Create a plot like the one above, but coloring the points by these new cluster assignments.  How many cities are in Cluster 1 now?  What does Cluster 2 represent now?
+
+   
+
+```{r}
+
+```
+
+
+<!--
+Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload to Gradescope.
+-->
