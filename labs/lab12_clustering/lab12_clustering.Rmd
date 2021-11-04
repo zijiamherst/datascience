@@ -1,0 +1,392 @@
+---
+title: "Lab 12: Clustering"
+author: "Solutions"
+date: "November 2, 2021"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+  # html_document:
+  #   toc: yes
+  #   toc_float: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  - \AtBeginEnvironment{quote}{\sffamily}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Part \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Lab}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Lab
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+library(mclust)
+library(ggrepel)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+      size = "small", # slightly smaller code font
+      message = FALSE,
+      warning = FALSE,
+      # center figures by default
+      fig.align = "center",
+      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+# **About this lab** {-}
+This lab will explore to real-world examples of clustering, beginning with a simple example of clustering some colleges and universities based on characteristics of an incoming class of first year students.  The variables we have are:
+
+* `STABBR`: State 
+* `CITY`: City
+* `INSTNM`: Institution
+* `SATMT25`: 25th percentile SAT MATH score
+* `SATVR25`: 25th percentile SAT Verbal score
+* `ADM_RATE`: Admission rate
+* `SAT_AVG`: Average SAT score
+* `GRAD_DEBT_MDN`: Median debt at graduation ($)
+* `PCIP27`: % of graduates majoring in Mathematics & Statistics
+* `COSTT4_A`: Average cost of attendance 
+
+To simplify our exploration of this data, we will only look at a random sample of schools in Massachusetts, and we will start with a focus on SAT scores.
+
+## **Packages** {-}
+
+The primary new package we'll be working with for clustering is **mclust**. Make sure you load this package in the `setup` code chunk above. 
+\normalfont
+
+
+<!-- Part 1 ------------------------------------------------------------------->
+# <!-- 1 -->**$k$-means clustering** To simplify our exploration of this data, we will only look at a random sample of schools in Massachusetts, and we will start with a focus on SAT verbal and math scores.
+
+## <!-- 1.1 -->Run the code below to read in and wrangle the data. Make sure you understand what each line is doing.
+
+```{r}
+colleges <- read_csv("data/colleges_subset.csv") %>% 
+  # Missing scores reported as text "NULL"; make numeric
+  mutate(SAT_math25 = as.numeric(SATMT25),
+         SAT_verbal25 = as.numeric(SATVR25)) %>% 
+  rename(state = STABBR,
+         city = CITY,
+         institution = INSTNM)
+
+dim(colleges)
+head(colleges)
+
+set.seed(20201103)
+ma_sample <- colleges %>% 
+  # Only keep schools in MA 
+  filter(state %in% c("MA")) %>% 
+  # Only keep schools with non-missing SAT scores
+  drop_na(SAT_math25, SAT_verbal25) %>% 
+  select(state, city, institution, SAT_math25, SAT_verbal25) %>%
+  # Select a random sample of 15 schools
+  sample_n(45)
+```
+
+## <!-- 1.2 -->First, let's look at a scatterplot of Math SAT (25th percentile) vs Verbal SAT (25th percentile). Which schools are most similar in terms of these two variables? Do we need to standardize the variables in this case? Why or why not?
+
+
+
+```{r}
+ggplot(data = ma_sample, aes(x = SAT_math25, y = SAT_verbal25)) +
+  geom_point() + 
+  geom_text_repel(aes(label = institution), size = 3) +
+  labs(x = "Math SAT 25th Percentile", 
+       y = "Verbal SAT 25th Percentile")
+```
+
+## <!-- 1.3 -->Let's use $k$-means to find two clusters:
+
+```{r}
+set.seed(23)
+clustering_vars <- c("SAT_math25", "SAT_verbal25")
+ma_km2 <- ma_sample %>% 
+  select(clustering_vars) %>% 
+  kmeans(centers = 2, nstart = 20)
+
+# Vector of cluster assignments
+ma_km2$cluster
+
+# The centroids for the fit
+ma_km2$centers
+
+# Add cluster assignment to the data frame
+ma_sample <- ma_sample %>%
+  mutate(clusters2 = factor(ma_km2$cluster)) 
+
+# Visualize the cluster assignments and centroids
+ggplot(data = ma_sample, aes(x = SAT_math25, y = SAT_verbal25)) + 
+  geom_point(aes(color = clusters2)) +
+  geom_text_repel(aes(label = institution, color = clusters2), size = 3) +
+  coord_fixed() +
+  geom_point(data = data.frame(ma_km2$centers),
+             aes(x = SAT_math25, y = SAT_verbal25),
+             pch = "x", size = 8) +
+  labs(x = "Math SAT (25th percentile)",
+       y = "Verbal SAT (25th percentile)",
+       color = "Cluster assignment")
+```
+
+## <!-- 1.4 -->What if we used 5 clusters?  Repeat the k-means clustering analysis and visualization above, but with 5 clusters instead of 2.  
+
+```{r}
+clustering_vars <- c("SAT_math25", "SAT_verbal25")
+ma_km5 <- ma_sample %>% 
+  select(clustering_vars) %>% 
+  kmeans(centers = 5, nstart = 20)
+
+# Vector of cluster assignments
+ma_km5$cluster
+
+# The centroids for the fit
+ma_km5$centers
+
+# Add cluster assignment to the data frame
+ma_sample <- ma_sample %>%
+  mutate(clusters5 = factor(ma_km5$cluster)) 
+
+# Visualize the cluster assignments and centroids
+ggplot(data = ma_sample, aes(x = SAT_math25, y = SAT_verbal25)) + 
+  geom_point(aes(color = clusters5)) +
+  geom_text_repel(aes(label = institution, color = clusters5), size = 3) +
+  coord_fixed() +
+  geom_point(data = data.frame(ma_km5$centers),
+             aes(x = SAT_math25, y = SAT_verbal25),
+             pch = "x", size = 8) +
+  labs(x = "Math SAT (25th percentile)",
+       y = "Verbal SAT (25th percentile)",
+       color = "Cluster assignment")
+```
+
+## <!-- 1.5 -->Which solution will have *smaller* total within-cluster variation?  Why?  Check your answer using the code below.
+
+
+
+```{r}
+ma_km2$tot.withinss
+ma_km5$tot.withinss
+```
+
+The one with 5 clusters have much smaller withinness because there are less groups and thus they're tighter together.
+
+## <!-- 1.6 -->We can use an *elbow plot* to try to identify an optimal number of clusters $k$. Run the code below to create the elbow plot and identify an optimal number of clusters based on where the "elbow" bends (the point where the total within-cluster sum of squares starts to decrease linearly).
+
+
+
+```{r}
+elbow_plot <- data.frame(clusters = 1:10,
+                         within_ss = rep(NA, 10))
+set.seed(75)
+for (i in 1:10){
+  ma_kmi_out <- ma_sample %>% 
+    select(clustering_vars) %>% 
+    kmeans(centers = i, nstart = 20)
+  
+  elbow_plot$within_ss[i] <- ma_kmi_out$tot.withinss
+}
+
+# Construct elbow plot
+ggplot(elbow_plot, aes(x = clusters, y = within_ss)) +
+  geom_point() + 
+  geom_line() +
+  scale_x_continuous(breaks = 1:10) +
+  labs(x = "Number of clusters (k)", y = expression("Total W"[k]))
+```
+
+<!-- Part 2 ------------------------------------------------------------------->
+# <!-- 2 -->**Standardization** Let's try clustering colleges by more than two variables. This time, we'll consider admission rate, SAT average, median debt at graduation, percentage of graduates majoring in Mathematics & Statistics, and average cost of attendance. This will be harder to visualize, but since we only have 15 observations, we can list out which colleges end up in each cluster.
+
+## <!-- 2.1 -->Run the code below to get the data ready for analysis. Make sure you understand what each line is doing.
+
+```{r}
+# Select the additional variables of interest 
+ma_sample2 <- colleges %>%
+  select(institution, 
+         admit_rate = ADM_RATE, 
+         SAT_avg = SAT_AVG, 
+         grad_debt_median = GRAD_DEBT_MDN, 
+         pct_mathstat = PCIP27, 
+         cost_avg = COSTT4_A) %>%
+  # Use right_join to only keep the colleges in our original sample
+  right_join(ma_sample %>% 
+               select(institution, state, city)) %>%
+  # Additional variables are character but should be numeric
+  mutate(across(admit_rate:cost_avg, ~ as.numeric(.)),
+         # Standardize or scale() numeric variables (subtract mean and divide by SD)
+         across(where(is.numeric),  ~ scale(.)[,1], .names = "{.col}_scaled")) %>%
+  # Drop rows with missing values (kmeans breaks with missing values)
+  drop_na()
+
+glimpse(ma_sample2)
+```
+
+## <!-- 2.1 -->Now implement $k$-means clustering with $k = 3$ clusters using the standardized variables. What schools are clustered together when using the standardized variables?  Are the clusters different if the unstandardized variables are used?
+
+
+
+```{r}
+# Clustering using standardized variables
+set.seed(23)
+ma2_km3_out <- ma_sample2 %>% 
+  select(ends_with("scaled")) %>% 
+  kmeans(centers = 3, nstart = 20)
+
+# Clustering using unstandardized variables (for comparison)
+ma2_km3_out_unscaled <- ma_sample2 %>% 
+  select(admit_rate:cost_avg) %>% 
+  kmeans(centers = 3, nstart = 20)
+
+# Add cluster assignments to the data frame
+ma_sample2 <- ma_sample2 %>%
+  mutate(clusters3_scaled = factor(ma2_km3_out$cluster),
+         clusters3_unscaled = as.character(ma2_km3_out_unscaled$cluster))
+
+# Clusters based on standardized vars
+ma_sample2 %>%
+  select(institution, clusters3_scaled) %>%
+  arrange(clusters3_scaled)
+
+# Clusters based on unstandardized vars
+ma_sample2 %>%
+  select(institution, clusters3_unscaled) %>%
+  arrange(clusters3_unscaled)
+```
+
+<!-- Part 3 ------------------------------------------------------------------->
+# <!-- 3 -->**Extracting meaning** Clustering methods don't just determine clusters based on individual variable values, but rather how these $p$ variables relate in $p$-dimensional space (e.g. clusters in $\mathbb{R}^5$ for this example). We are limited for now to 2D visualizations, however. We can examine a *scatterplot matrix* using the ggplot "add on" package, **GGally**. Run the code below to see the `ggpairs()` function in action. Consider both the density plots and the scatterplots.  What are the defining characteristics of each cluster?
+
+
+
+```{r}
+# Scatterplot matrix of clusters based on scaled variables
+GGally::ggpairs(data = ma_sample2, aes(color = clusters3_scaled),
+                columns = c("admit_rate_scaled", "SAT_avg_scaled",
+                            "grad_debt_median_scaled", "pct_mathstat_scaled",
+                            "cost_avg_scaled"),
+                upper = list(continuous = "blank"))
+
+# Scatterplot matrix of clusters based on unscaled variables
+GGally::ggpairs(data = ma_sample2, aes(color = clusters3_unscaled),
+                columns = c("admit_rate", "SAT_avg",
+                            "grad_debt_median", "pct_mathstat",
+                            "cost_avg"))
+```
+
+<!-- Part 4 ------------------------------------------------------------------->
+# <!-- 4 -->**Your Turn!  Customer segmentation** Suppose you're working as a data scientist for a credit card company. The company wants to divide their customers into groups for targeted marketing.  That is, your tasked with grouping the credit card holders based on their credit card behavior; then, the marketing team at the company will use the information you provide them to help inform their marketing stategy. You're given a dataset with information on 8,950 credit card holders, with the following variables:
+
+> * `CUST_ID`: Identification of Credit Card holder
+> * `BALANCE`: Balance amount left in their account to make purchases 
+> * `BALANCE_FREQUENCY`: How frequently the Balance is updated, score between 0 and 1 (1 = frequently updated, 0 = not frequently updated)
+> * `PURCHASES`: Amount of purchases made from account
+> * `PURCHASES_FREQUENCY`: How frequently the Purchases are being made, score between 0 and 1 (1 = frequently purchased, 0 = not frequently purchased)
+> * `ONEOFF_PURCHASES`: Maximum purchase amount done in one-go
+> * `ONEOFFPURCHASESFREQUENCY`: How frequently purchases are happening in one-go (1 = frequently purchased, 0 = not frequently purchased)
+> * `PRC_FULL_PAYMENT`: Percent of full payment paid by user 
+> * `INSTALLMENTS_PURCHASES`: Amount of purchase done in installment
+> * `PURCHASES_INSTALLMENTS_FREQUENCY`: How frequently purchases in installments are being done (1 = frequently done, 0 = not frequently done)
+> * `CASH_ADVANCE`: Cash in advance given by the user
+> * `CASH_ADVANCE_FREQUENCY`: How frequently the cash in advance being paid
+> * `CASH_ADVANCE_TRX`: Number of Transactions made with "Cash in Advanced"
+> * `PURCHASES_TRX`: Number of purchase transactions made
+> * `CREDIT_LIMIT`: Limit of Credit Card for user
+> * `PAYMENTS`: Amount of Payment done by user
+> * `MINIMUM_PAYMENTS`: Minimum amount of payments made by user
+> * `PRC_FULL_PAYMENT`: Percent of full payment paid by user
+> * `TENURE`: Tenure of credit card service for user
+
+## <!-- 4.1 -->Apply $k$-means clustering to identify 3 clusters.  Don't forget to remove any rows with missing values and to standardize the variables first. How many customers are in each cluster?  
+
+
+
+```{r}
+ccdata <- read_csv("data/cc-general.csv") 
+
+ccdata
+
+ccdata <- ccdata %>%
+  select(payments = PAYMENTS,
+         purchase_amount = PURCHASES,
+         oneoff_max = ONEOFF_PURCHASES) %>%
+  drop_na()
+
+ccluster <- ccdata %>%
+  kmeans(centers = 3, nstart = 15)
+ccluster$size
+```
+
+There are 8281 customers in the first, 22 in second, and 647 in the third.
+
+## <!-- 4.2 -->Compute the centroids for each cluster. Can you identify any distinguishing characteristics about the clusters from these centroid values? 
+
+
+
+```{r}
+ccluster$centers
+```
+
+## <!-- 4.3 -->In 1-3 sentences, explain how you would expect the results to be different had you forgotten to standardize the variables prior to clustering.
+
+
+
+## <!-- 4.4 -->Identify some primary defining characteristics of each of the three clusters.  Come up with a short name for each cluster based on their defining characteristics.  *Note*:  There are so many variables that using `ggpairs()` to visualize them all at once produces a figure that isn't legible.  I recommend running `ggpairs()` separately for 3-4 variables at a time and/or considering the centroids of the clusters (as you computed above in Problem 4.2).  
+
+
+
+```{r}
+
+```
+
+## <!-- 3.5 -->Create an elbow plot to help identify an appropriate number of clusters to create in this analysis. How many clusters seem reasonable such that there's enough of a decrease in the total within cluster variability to warrant that many clusters but not too many clusters to complicate the analysis. How might you proceed?
+
+
+
+```{r}
+
+```
+
+
+# References {-}
+
+College data is from: https://collegescorecard.ed.gov/data/
+
