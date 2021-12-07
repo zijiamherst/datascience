@@ -1,0 +1,246 @@
+---
+title: "Lab 14: SQL"
+author: "Solutions"
+date: "November 9, 2021"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+    number_sections: yes
+  # html_document:
+  #   toc: yes
+  #   toc_float: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  - \AtBeginEnvironment{quote}{\sffamily}
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Part \thesection}{4mm}{}[]
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Lab}
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Lab
+              \par \Large\bfseries \hspace*{-9mm}}
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+
+library(RMySQL)
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+      size = "small", # slightly smaller code font
+      message = FALSE,
+      warning = FALSE,
+      # center figures by default
+      fig.align = "center",
+      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+# **About this lab** {-}
+This lab will give you additional practice working with SQL (apparently, we should pronounce this as the letters "S-Q-L", but I and many others have a habit of pronouncing it "sequel").
+
+## **Packages** {-}
+Our primary package for this lab is **RMySQL**
+Make sure you load each package in the `setup` code chunk above. 
+
+## **Data** {-}
+Researchers at Smith College aimed to develop wideband acoustic immittance (WAI) measures as a noninvasive tool to diagnose hearing problems. The collection of WAI measures include *absorbance*, *power*, *reflectance*, *impedence*, and related quantities.  As part of the project, they have developed the world's only online WAI database that collates data from different studies on this topic. We will use SQL to connect to and query the database.
+
+Run the code below to use SQL to connect to the MySQL server that hosts the Smith WAI database.
+
+```{r}
+con <- dbConnect(MySQL(), 
+                 host = "scidb.smith.edu",
+                 user = "waiuser", 
+                 password = "smith_waiDB",
+                 dbname = "wai")
+```
+\normalfont
+
+
+<!-- Part 1 ------------------------------------------------------------------->
+# <!-- 1 -->**Introduction to SQL** A single server can support many databases, each containing many tables, with each table having a variety of columns---it's easy to get lost when working with databases! We'll work through some commands to help figure out what's available to access in the database.
+
+# <!-- 1.1 -->What tables are included in the database (`con`)?
+
+```{r}
+dbGetQuery(con, "SHOW TABLES")
+```
+
+# <!-- 1.2 -->What is in the `PI_Info` table?
+
+```{r}
+dbGetQuery(con, "EXPLAIN PI_Info")
+```
+
+# <!-- 1.3 -->View the first five observations of the `PI_Info` table:
+
+```{r}
+dbGetQuery(con, "SELECT * 
+                 FROM PI_Info
+                 LIMIT 0, 5")
+```
+
+# <!-- 1.4 -->How many observations are in the `PI_Info` table?
+
+```{r}
+dbGetQuery(con, "SELECT COUNT(*)
+                 FROM PI_Info")
+
+# name the returned value "num_obs"
+dbGetQuery(con, "SELECT COUNT(*) as num_obs
+                 FROM PI_Info")
+```
+
+# <!-- 1.5 -->Explore the `Measurements` and `Subjects` tables. What type of information is in each table?  How many observations are in each table?
+
+
+
+```{r}
+
+```
+
+<!-- Part 2 ------------------------------------------------------------------->
+# <!-- 2 -->**SQL tables vs R data frames** Keep in mind we are connecting to a massive database held on a server, and although we are coding in this R environment, the computations are being done on the MySQL server (we send messages to the server to tell it what to do; the server does the heavy lifting and sends us back the results). 
+
+## <!-- 2.1 -->As with R objects, it can be useful to save SQL objects before we continue working with them. The `tbl()` function allows us to save a SQL table on the server, which also shows up as a `tbl_sql` object in our R environment. 
+
+```{r}
+# Assign object as SQL table
+PI_Info_sql <- tbl(con, "PI_Info")
+class(PI_Info_sql)
+```
+
+## <!-- 2.2 -->The functions in **dplyr** are designed to translate automatically to SQL commands, but this is not true for other packages we've worked with. With this in mind, do you expect either block of code below to work? Why or why not?
+ 
+
+ 
+```{r, eval = FALSE}
+# Block 1
+PI_Info_sql %>%
+  filter(Year == 2010) %>%
+  select(Identifier, Year, AuthorsShortList)
+
+# Block 2
+PI_Info_sql %>%
+ separate(Identifier, into = c("Author", "Year"), 
+          sep = "_", remove = FALSE) %>%
+ select(Identifier, PI_Year, PI)
+```
+
+## <!-- 2.3 -->SQL can be very helpful and efficient for querying huge datasets and relational databases, but its analytic capabilities are limited. When analyzing data or creating figures, we may want to convert SQL queries or tables into local R data frames, which we can then work with in all the ways we have learned this semester. We can do so using the `collect()` function:
+
+```{r}
+PI_Info_df <- PI_Info_sql %>%
+  collect()
+
+class(PI_Info_sql)
+class(PI_Info_df)
+
+# Doesn't work (SQL table)
+PI_Info_sql %>%
+   separate(Identifier, into = c("Author", "Year"), 
+            sep = "_", remove = FALSE) %>%
+   select(Identifier, Author, Year)
+
+# Works (R dataframe)
+PI_Info_df %>%
+   separate(Identifier, into = c("Author", "Year"), 
+            sep = "_", remove = FALSE) %>%
+   select(Identifier, Author, Year)
+```
+
+<!-- Part 3 ------------------------------------------------------------------->
+# <!-- 3 -->**SQL code chunks** Syntax highlighting is an incredibly useful tool for quickly identifying errors or typos as you code. However, the `dbGetQuery()` command has us place the SQL code within quotation marks, which makes all the SQL syntax the same color. If you're like me and want (need!) the color-coding, you can write SQL directly in a SQL code chunk! In addition to specifying the language of the code chunk (`sql`), you need to specify the server connection within the code chunk option using `connection = ...`. For the remainder of the lab, we'll use SQL code chunks whenever we want to query the Smith WAI database.
+
+## <!-- 3.1 -->The R code chunk below shows a query using `dbGetQuery()` in R. The second code chunk shows the exact same query but in a SQL code chunk. Can you identify what the code is doing?
+
+
+
+**R code chunk**
+```{r}
+dbGetQuery(con, "SELECT SessionTotal, COUNT(SessionTotal) as n,
+                        AVG(Sex = 'Female') as prop_fem,
+                        AVG(AgeFirstMeasurement) as avg_age
+                 FROM Subjects
+                 GROUP BY SessionTotal")
+```
+
+**SQL code chunk**
+```{sql, connection = con}
+SELECT  SessionTotal, COUNT(SessionTotal) as n,
+        AVG(Sex = 'Female') as prop_fem,
+        AVG(AgeFirstMeasurement) as avg_age
+FROM Subjects
+GROUP BY SessionTotal
+```
+
+## <!-- 3.2 -->The textbook tells us that the SQL equivalent of **dplyr**'s `filter()` is `WHERE`, but there is a similar SQL command called `HAVING`. When shoul you use `WHERE` vs. `HAVING`? You can use the code chunk below to help explain.
+
+
+
+```{sql, connection = con}
+SELECT  SessionTotal, COUNT(SessionTotal) as n,
+        AVG(Sex = 'Female') as prop_fem,
+        AVG(AgeFirstMeasurement) as avg_age
+FROM Subjects
+WHERE AgeFirstMeasurement < 25
+GROUP BY SessionTotal
+```
+
+```{sql, connection = con}
+SELECT  SessionTotal, COUNT(SessionTotal) as n,
+        AVG(Sex = 'Female') as prop_fem,
+        AVG(AgeFirstMeasurement) as avg_age
+FROM Subjects
+GROUP BY SessionTotal
+HAVING avg_age < 25
+```
+
+## <!-- 3.3 -->Re-do the above query but include only those rows that have at least 10 subjects contributing (hint: update the `HAVING` line only). 
+
+```{sql, connection = con}
+
+```
+
+<!-- Part 4 ------------------------------------------------------------------->
+# <!-- 4 -->**Create visualization** Create a figure that displays `Frequency` on the x-axis and `Absorbance` on the y-axis (both from the `Measurements` table), colored by `Ear` (left or right), for subject #3 from the Rosowski 2012 study. Do this in two ways:
+
+> 1. Use SQL code to query the appropriate table(s) (up to the point of creating the figure).  Then use `collect()` on the table immediately prior to using `ggplot` to create the figure.
+
+> 2. Use `collect()` to convert the appropriate table(s) to R data frames, and then use R code to format the data to produce the figure.
+
+```{sql, connection = con}
+
+```
+
+```{r}
+
+```

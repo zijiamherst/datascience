@@ -1,0 +1,254 @@
+---
+title: "Practice Set 6"
+author: "Your Name"
+date: "Due by 10pm ET on Friday"
+urlcolor: blue
+linkcolor: blue
+output:
+  pdf_document:
+# DO NOT CHANGE YAML BELOW THIS LINE    
+    number_sections: yes
+classoption: fleqn
+subparagraph: yes
+header-includes:
+  # LaTeX packages
+  - \usepackage{fancyhdr,titling}\usepackage[compact]{titlesec}
+  # Question format (e.g., `Problem 3`)
+  - > 
+    \titleformat{\section}[hang]{\ifnum \value{section}>0 \newpage
+                                  \else \vspace{14pt} \fi
+                                  \sffamily\large}
+                                  {\hspace*{-9mm}Problem \thesection}{4mm}{}[]
+  # Subquestion format (e.g., `3.1`)
+  - >
+    \titleformat{\subsection}[hang]{\vspace{14pt}\sffamily\large}
+                                    {\hspace*{-9mm}\thesubsection}{4mm}{}[\vspace*{11pt}]
+  # Page layout
+  - >
+    \pagestyle{fancy}\fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
+    \cfoot{\sffamily\thepage}
+  # Header layout
+  - >
+    \lhead{\hspace*{-9mm}\sffamily\footnotesize 
+            \copyright Brittney E. Bailey | STAT 231 | Problem set}
+  # Title layout
+  - \pretitle{\hspace*{-9mm}\sffamily\footnotesize
+              \copyright Brittney E. Bailey | STAT 231 | Problem set
+              \par \Large\bfseries \hspace*{-9mm}}
+  - \posttitle{\\\hspace*{-9mm}\rule{7in}{2pt}}
+  - \preauthor{\begin{flushright} \large} \postauthor{\end{flushright}}
+  - \predate{\begin{flushright}\sffamily\footnotesize}
+  - \postdate{\end{flushright}\vspace*{-33pt}}
+  - \setlength{\droptitle}{-1in}
+  # First page
+  - >
+    \AtBeginDocument{\sffamily\raggedright}
+---
+
+# **Practice Set Information** {-}
+
+During the week, you will get further practice with the material by working through the Practice Set, a set of problems designed to give you practice beyond the examples produced in the text. 
+
+You may work through these problems with peers, but all work must be completed by you (see the Honor Code in the syllabus) and you must indicate who you worked with below. 
+
+Even then, the best approach here is to try the problems on your own before discussing them with peers, and then write your final solutions yourself.
+
+
+## **GitHub Workflow** {-}
+
+1. Before editing this file, verify you are working on the copy saved in *your* repo for the course (check the filepath and the project name in the top right corner). 
+
+2. Before editing this file, make an initial commit of the file to your repo to add your copy of the problem set. 
+
+3. Change your name at the top of the file and get started! 
+
+4. You should *save, knit, and commit* the .Rmd file each time you've finished a question, if not more often. You should also *push* your commits back onto GitHub occasionally (you can do this after each commit). 
+
+6. When you think you are done with the assignment, save the pdf as "*Name*\_*thisfilename*\_*date*.pdf" before committing and pushing (this is generally good practice but also helps me in those times where I need to download all student homework files).
+
+## **Gradescope Upload** {-}
+
+For each question (e.g., 3.1), allocate all pages associated with the specific question. If your work for a question runs onto a page that you did not select, you may not get credit for the work. If you do not allocate *any* pages when you upload your pdf, you may get a zero for the assignment.
+
+You can resubmit your work as many times as you want before the deadline, so you should not wait until the last minute to submit some version of your work. Unexpected delays/crises that occur on the day the assignment is due do not warrant extensions (please submit whatever you have done to receive partial credit).
+
+\clearpage
+# **Practicing Academic Integrity** {-}
+
+If you worked with others or used resources outside of provided course material (notes, textbook, etc) to complete this assignment, please acknowledge them below using a bulleted list. 
+\normalfont
+
+<!-- ~~~~~~~~~~~~~~~~ YOU MAY BEGIN EDITING BELOW THIS LINE ~~~~~~~~~~~~~~~~ -->
+
+*I acknowledge the following individuals with whom I worked on this assignment:*
+
+Name(s) and corresponding problem(s)
+
+*
+
+*I used the following sources to help complete this assignment:*
+
+Source(s) and corresponding problem(s)
+
+* 
+
+```{r setup, include = FALSE}
+# load packages
+library(tidyverse)
+library(kableExtra)
+
+library(twitteR) # Problem 1
+library(emojifont) # devtools::install_github("hadley/emo")
+library(tidytext) # Problem 1
+library(wordcloud) # Problem 1
+library(textdata) # Problem 1
+
+
+# set code chunk defaults
+knitr::opts_chunk$set(tidy = F, # display code as typed
+                      size = "small", # slightly smaller code font
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = "\t") 
+
+# set black & white default plot theme
+theme_set(theme_classic()) 
+
+# improve digit and NA display 
+options(scipen = 1, knitr.kable.NA = '')
+```
+
+<!-- PROBLEM 1 ---------------------------------------------------------------->
+# <!-- 1 -->**OPTIONAL: Scraping Tweets** The **twitteR** package provides an interface between R and the Twitter API. In order to use the package, you need a Twitter account and a developer account (to be able to access the Twitter API).
+
+## <!-- 1.1 -->Sign up for Twitter if you haven't already, and then log in. While signed in, navigate to https://developer.twitter.com/en/apps (your log-in should hold, but sign in again with your Twitter credentials if necessary).
+
+## <!-- 1.2 -->Click on the "Create New App" button to apply for a Twitter developer account (necessary for using the Twitter API). As instructed, "pick the use case that most closely relates to the type of work you intend to do while using the Twitter developer platform." As of Fall 2021, I recommend choosing **Academic** and then **Student** in the set of options that follow. Then complete the application, providing as much detail as possible to make it easier for them to approve your application  We will be using the Twitter API to scrape tweets from a figure or hashtag of interest to you, and then conduct text analyses using word clouds, word frequency charts, and/or sentiment analyses using the sentiment databases we saw in class. Please be mindful of the [Developer Agreement](https://developer.twitter.com/en/developer-terms/agreement), [Developer Policy](https://developer.twitter.com/en/developer-terms/policy)
+
+> *Some text you can use and modify for different questions in the developer application:* I am an undergraduate student taking a Data Science class where we are learning how to use the twitteR package in R software to interface with the Twitter API. I hope to use the Twitter API to scrape the text from tweets, and then apply some of the statistical techniques we are learning in class to aggregrate the data for analysis using word clouds, text frequency analyses, or sentiment analysis. The data will be aggregated and any analyses will only be shared with the instructor and peers in the course. No individual tweets will be shared or displayed publicly. The app will not tweet, retweet, or direct message. 
+
+## <!-- 1.3 -->Set up your connection/authorization with the Twitter API:
+```{r api-keys}
+my_api_key <- "copy-your-api-key-here"
+
+my_api_secret <- "copy-your-api-secret-here"
+
+my_bearer_token <- "copy-your-bearer-token-here"
+
+my_access_token <- "copy-your-access-token-here"
+
+my_access_secret <- "copy-your-access-secret-here"
+```
+
+```{r api-authorization}
+consumer_key <- my_api_key
+consumer_secret <- my_api_secret
+access_token <- my_access_token
+access_secret <- my_access_secret
+
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+```
+
+## <!-- 1.4 -->Now, as a test run, use the code below to search Twitter for for various results and convert the resulting list objects to a dataframes. Take a look at what data are included (*note*: the **textclean** package has a way of dealing with emojis that may be useful when conducting text analysis).
+
+```{r}
+# Grab most recent 200 tweets (in English) containing '#statstwitter" 
+stats_twitter <- searchTwitter("#statstwitter", n = 200, lang = "en") %>% 
+  # Convert list to data frame
+  twListToDF() %>% 
+  mutate(textclean = textclean::replace_emoji_identifier(text))
+
+delta_twitter <- searchTwitter("delta variant", since = "2021-06-01") %>% 
+  twListToDF()
+```
+
+## <!-- 1.5 -->Use the dataframe to conduct a text analysis of your choice (e.g., a word cloud). An example is provided below, but remember there are many approaches that are possible.
+
+```{r}
+tmc_twitter <- searchTwitter("from:tressiemcphd", resultType = "recent", n = 200) %>% 
+  twListToDF()
+
+my_stop_words <- stop_words %>% 
+  select(-lexicon) %>% 
+  bind_rows(data.frame(word = c("https", "t.co", "rt", "amp","tressiemcphd", "don’t", "i’m", "it’s", "that’s")))
+
+tmc_words <- tmc_twitter %>% 
+  select(id, text) %>% 
+  unnest_tokens(word, text) %>% 
+  anti_join(my_stop_words)
+
+tmc_words %>% 
+  count(word, sort = TRUE) %>% 
+  slice(1:20) %>% 
+  ggplot(aes(x = reorder(word, n, function(n) - n), y = n)) + 
+  geom_bar(stat = "identity") + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + xlab("")
+```
+
+<!-- PROBLEM 2 ---------------------------------------------------------------->
+# <!-- 2 -->**OPTIONAL: Trump Tweets** *This assignment originally worked through Trump's tweets, so if you are interested in exploring those, feel free to try out this problem.* David Robinson, Chief Data Scientist at DataCamp, wrote a blog post ["Text analysis of Trump's tweets confirms he writes only the (angrier) Android half"](http://varianceexplained.org/r/trump-tweets/).
+He provides a dataset with over 1,500 tweets from the account realDonaldTrump between 12/14/2015 and 8/8/2016.  We'll use this dataset to explore the tweeting behavior of @realDonaldTrump during this time period.
+
+## <!-- 2.1 -->First, read in the file. Note that there is a `TwitteR` package which provides an interface to the Twitter web API.  We'll use this R dataset David created using that package so that you don't have to set up Twitter authentication.  
+
+```{r}
+url("http://varianceexplained.org/files/trump_tweets_df.rda") %>%
+  load()
+```
+
+## <!-- 2.1 -->There are a number of variables in the dataset we won't need. First, confirm that all the observations in the dataset are from the screen-name *realDonaldTrump*. Then, create a new dataset called `tweets` that only includes the variables `text`, `created` and `statusSource`.
+
+```{r}
+
+```
+
+## <!-- 2.2 -->Using the `statusSource` variable, compute the number of tweets from each source.  How many different sources are there?  How often are each used?
+
+
+
+```{r}
+
+```
+
+## <!-- 2.2 -->We're going to compare the language used between the Android and iPhone sources, so we only want to keep tweets coming from those sources.  Explain what the `extract()` function (from the **tidyverse** package) is doing below.  Include in your own words what each argument is doing. 
+
+```{r}
+tweets <- tweets %>%
+  extract(col = statusSource, into = "source",
+          regex = "Twitter for (.*)<",
+          remove = FALSE) %>%
+  filter(source %in% c("Android", "iPhone"))
+```
+
+## <!-- 2.3 -->How does the language of the tweets differ by source?  Create a word cloud for the top 50 words used in tweets sent from the Android.  Create a second word cloud for the top 50 words used in tweets sent from the iPhone.  How do these word clouds compare?  (Are there some common words frequently used from both sources? Are the most common words different between the sources?) *Don't forget to remove stop words before creating the word cloud.  Also remove the terms "https" and "t.co".*
+
+
+
+```{r, fig.width = 8, fig.height = 8}
+
+```
+
+## <!-- 2.4 -->Create a visualization that compares the top 10 *bigrams* appearing in tweets by each source (that is, facet by source).  After creating a dataset with one row per bigram, you should remove any rows that contain a stop word within the bigram.  How do the top used bigrams compare between the two sources?
+
+
+
+```{r}
+
+```
+
+## <!-- 2.5 -->Consider the sentiment.  Compute the proportion of words among the tweets within each source classified as "angry" and the proportion of words classified as "joy"  based on the NRC lexicon.  How does the proportion of "angry" and "joy" words compare between the two sources?  What about "positive" and "negative" words?  
+
+
+
+```{r}
+
+```
+
+## <!-- 2.5 -->Lastly, based on your responses above, do you think there is evidence to support Robinson's claim that Trump only writes the (angrier) Android half of the tweets from realDonaldTrump?  In 2-4 sentences, please explain.
+
+
+
+<!--
+Congrats! You've made it to the end. If you think you are done, read the instructions for how to do the final commit + push, this time including your renamed pdf, and upload your pdf to Gradescope.
+-->

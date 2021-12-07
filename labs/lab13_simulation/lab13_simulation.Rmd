@@ -1,6 +1,6 @@
 ---
 title: "Lab 13: Simulation"
-author: "Your Name"
+author: "Ziji Zhou"
 date: "November 4, 2021"
 urlcolor: blue
 linkcolor: blue
@@ -268,7 +268,7 @@ We typically refer to $n$ as the sample size in statistics. In simulations, we a
 set.seed(2021)
 
 # Simulation size
-n_sim <- 1000
+n_sim <- 100000
 
 # Number of observations in each random sample
 n_obs <- 250
@@ -339,6 +339,7 @@ y <- rnorm(n = n_obs, mean = 0, sd = 1)
 # Fit model
 mod <- lm(y ~ x)
 
+
 # Extract p-value for predictor
 pvalue <- mod %>% 
   # Use tidy() from broom package to make p-values easy to extract
@@ -354,7 +355,6 @@ pvalue <- mod %>%
 
 # Initialize vector for storing the p-values
 pvalues <- rep(NA, n_sim)
-
 
 for(i in 1:n_sim){
   # Generate predictor
@@ -434,24 +434,21 @@ dat <- xs %>%
   
 # Fit 100 different models (one model for each predictor)
 # and extract p-values 
-
-
 pvalues <- rep(NA, n_x)
 for (j in 1:n_x){
   # Fit model
   mod <- lm(formula = paste0("y ~ X", j), data = dat)
   
   # Extract p-value for predictor (tidy)
-  # pvalues[j] <- mod %>% 
+  #pvalues[j] <- mod %>% 
   #   # Use tidy() from broom package to make p-values easy to extract
   #   broom::tidy() %>% 
   #   filter(term == paste0("X", j)) %>% 
   #   pull(p.value)
   
   # Extract p-value (base R is faster in this case)
-  pvals[j] <- (summary(mod)$coeff)[paste0("X", j), "Pr(>|t|)"]
+  pvalues[j] <- (summary(mod)$coeff)[paste0("X", j), "Pr(>|t|)"]
 }
-
 
 
 #############################################
@@ -487,7 +484,7 @@ for (i in 1:n_sim){
     #   pull("p.value")
     
     # Extract p-value (base R is much faster in this case)
-    pvals[i, j] <- (summary(mod)$coeff)[paste0("X", j), "Pr(>|t|)"]
+    pvalues[i, j] <- (summary(mod)$coeff)[paste0("X", j), "Pr(>|t|)"]
   }
 }
 
