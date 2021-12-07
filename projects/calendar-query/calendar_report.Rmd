@@ -50,70 +50,105 @@ https://support.google.com/calendar/answer/37111?hl=en&ref_topic=10509946
 ```{r, eval = TRUE}
 # Data import and preliminary wrangling
 distractions_data <- "Distractions.ics" %>% 
+  
   # Use ical package to import into R
   ical_parse_df() %>% 
+  
   # Convert to "tibble" data frame format
   as_tibble() %>% 
+  
   mutate(
     # Use lubridate package to wrangle dates and times
     start_datetime = with_tz(start, tzone = "America/New_York"),
     end_datetime = with_tz(end, tzone = "America/New_York"),
-    # duration_sec = end_datetime - start_datetime,
-    duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
+    # duration_hour = end_datetime - start_datetime,
+    duration_hour = difftime(end_datetime, start_datetime, units = "hours"),
     # Convert calendar entry to all lowercase and rename
     activity = summary)  %>%
+  
   # Pivot longer into start and end time
-  pivot_longer(c("start","end"), names_to = "Start/End", values_to = "time") %>%
+  pivot_longer(c("start","end"), names_to = "start_end", values_to = "time") %>%
+  
   mutate(
     # Get time of day
-    time_of_day = hms::hms(seconds = second(time), minutes = minute(time), hours = hour(time)),
+    time_of_day = hms::hms(seconds = second(time), 
+                           minutes = minute(time), 
+                           hours = hour(time)),
+    
     # Get date as a categorical variable
     date = floor_date(time, unit = "day"),
-    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/"),
+    date_chr = paste(as.character(month(date)), 
+                     as.character(day(date)), 
+                     as.character(year(date)), sep = "/"),
     type = NA,
     class = NA,
     work_uid = NA
   )
 
 schoolwork_data <- "Schoolwork.ics" %>% 
+  
   # Use ical package to import into R
   ical_parse_df() %>% 
+  
   # Convert to "tibble" data frame format
   as_tibble() %>% 
+  
   mutate(
     # Use lubridate package to wrangle dates and times
     start_datetime = with_tz(start, tzone = "America/New_York"),
     end_datetime = with_tz(end, tzone = "America/New_York"),
-    # duration_sec = end_datetime - start_datetime,
-    duration_sec = difftime(end_datetime, start_datetime, units = "secs"),
+    
+    # duration_hour = end_datetime - start_datetime,
+    duration_hour = difftime(end_datetime, start_datetime, units = "hours"),
+    
     # Convert calendar entry to all lowercase and rename
     activity = summary,
+    
     # Split activity column into work and class columns
     type = substring(activity, 0, regexpr(", ", activity) - 1),
     class = substring(activity, regexpr(", ", activity) + 2))  %>%
+  
   # Pivot longer into start and end time
-  pivot_longer(c("start","end"), names_to = "Start/End", values_to = "time") %>%
+  pivot_longer(c("start","end"), names_to = "start_end", values_to = "time") %>%
+  
   mutate(
+    
     # Get time of day
-    time_of_day = hms::hms(seconds = second(time), minutes = minute(time), hours = hour(time)),
+    time_of_day = hms::hms(seconds = second(time), 
+                           minutes = minute(time), 
+                           hours = hour(time)),
+    
     # Get date as a categorical variable
     date = floor_date(time, unit = "day"),
-    date_chr = paste(as.character(month(date)), as.character(day(date)), as.character(year(date)), sep = "/")
+    date_chr = paste(as.character(month(date)), 
+                     as.character(day(date)), 
+                     as.character(year(date)), sep = "/")
   )
 
+
 # Attach type of work to distractions
-for(i in 1:nrow(distractions_data)){
+#go through every distraction
+for(i in 1:nrow(distractions_data)){ 
   
-  for(x in 1:nrow(schoolwork_data)){
+  #go through every work item
+  for(x in 1:nrow(schoolwork_data)){ 
     
-    if(x%%2 == 1 && i%%2 == 1){
-      if(as.POSIXct(distractions_data$time[i]) %within% interval(as.POSIXct(schoolwork_data$time[x]),as.POSIXct(schoolwork_data$time[x+1]))){
+    #only every other item as the list is long with start and end times
+    if(x%%2 == 1 && i%%2 == 1){ 
+      
+      #check if the distraction data is within the timeframe of the work data
+      if(as.POSIXct(distractions_data$time[i]) %within% 
+         interval(as.POSIXct(schoolwork_data$time[x]),
+                  as.POSIXct(schoolwork_data$time[x+1]))){ 
+        
+        #if it is in the range, then add the type of work to the ditraction
         distractions_data$class[i] = as.character(schoolwork_data$class[x])
         distractions_data$type[i] = as.character(schoolwork_data[x,"type"])
         distractions_data$work_uid[i] = as.character(schoolwork_data[x,"uid"])
         distractions_data$class[i+1] = as.character(schoolwork_data$class[x])
         distractions_data$type[i+1] = as.character(schoolwork_data[x,"type"])
         distractions_data$work_uid[i+1] = as.character(schoolwork_data[x,"uid"])
+        
       }
     }
   }
@@ -138,7 +173,7 @@ Describe your question(s) here.  Briefly describe your data collection process, 
 * What type of distractions do I interrupt each types of work and for which class? 
 * In which class am I the most productive? What type of work? What time of day? (Productiveness is defined by the amount of distractions during that period of work)
 
-My data collection process involved logging the each time I sit down seriously to do schoolwork. I would take note the class and type of work (split between problems, reading, and writing). For each time I go away from my work I would take note of when I started going off track and when I returned as a seperate data set. My distractions were categorically split into phone, text, talk, food, web, restroom, music.
+My data collection process involved logging each time I sit down seriously to do schoolwork. I would take note the class and type of work (split between problems, reading, and writing). For each time I go away from my work I would take note of when I started going off track and when I returned as a seperate data set. My distractions were categorically split into phone, text, talk, food, web, restroom, music.
 
 \newpage
 # First Graph
@@ -150,27 +185,43 @@ This visualization presents my work over the two weeks of data collection. The x
 
 
 ```{r, fig.width=15, fig.height=20}  
-# Be sure to provide meaningful title and axes labels 
 # Code for data visualization #1
 schoolwork_data %>%
   ggplot(aes(x = as.POSIXct(time_of_day), y = reorder(date_chr,desc(date_chr)))) +
+  
+  #set the x scale
   scale_x_datetime(date_breaks = "1 hours",
                    date_labels = "%H:%M",
                    expand = c(0, 0)) +
+  
+  #add the work data
   geom_line(aes(color = type, 
                 group = uid), 
             size = 10, 
             alpha = 0.3) + 
+  
+  #add distraction data
   geom_line(data = distractions_data ,
             aes(group = uid,
                 color = "Distractions"), 
             size = 3, 
             alpha = 0.8) +
+  
+  #facet by class
   facet_wrap(~class, nrow = 4) +
+  
+  #labels and theme
   labs(title = "Timeline of my Schoolwork and Distractions", 
        x = "Hour",
        y = "Date",
-       color = "Colors")
+       color = "Activity") + 
+  theme(legend.text = element_text(size = rel(1.2)),
+        legend.title = element_text(size = rel(1.8)),
+        plot.title = element_text(size = rel(2), face = "bold"),
+        axis.text = element_text(size = rel(1.1)),
+        axis.title = element_text(size = rel(1.5)),
+        strip.text.x = element_text(size = rel(2.3)))
+
 
 ```
 
@@ -182,32 +233,53 @@ Describe what information is conveyed through data visualization #2 (that you'll
 This faceted bar graph shows the distribution of my time with each class and my distractions during them. The y axis displays the minutes while the x is the class the bar represents. The graph is faceted for each type of work and the corresponding distractions. Each distraction is then divided up into color to show which type of distraction is most common for each type of work.
 
 ```{r,fig.width=15, fig.height=20}
-  
-# Be sure to provide meaningful title and axes labels 
 
+#summarize the schoolwork data
 schoolwork_summary <- schoolwork_data %>%
+  
+  #find total time spent each type and each class
   group_by(type, class) %>%
-  summarize(duration_sec = sum(duration_sec)/2) %>%
-  arrange(desc(duration_sec))
+  summarize(duration_hour = sum(duration_hour)/2) %>%
+  arrange(desc(duration_hour))
 
+#summarize the distraction data
 distractions_summary <- distractions_data %>%
+  
+  #find total time spent each type and each class
   group_by(type, class, summary) %>%
-  summarize(duration_sec = sum(duration_sec)/2) %>%
-  arrange(desc(duration_sec))
+  summarize(duration_hour = sum(duration_hour)/2) %>%
+  arrange(desc(duration_hour))
 
 # Code for data visualization #2
 schoolwork_summary %>%
-  ggplot(aes(x = type, y = duration_sec/60)) +
-  geom_col(width = 0.9, alpha = 0.5, fill = "red") +
+  ggplot(aes(x = type, y = duration_hour)) +
+  
+  #column of work time
+  geom_col(width = 0.9, alpha = 0.7, fill = "black") +
+  
+  #columns of distraction time
   geom_col(data = distractions_summary, aes(fill = summary), width = 0.75) +
+  
+  #set color
   scale_fill_brewer(palette = "Set2") +
   coord_flip() +
+  
+  #facet by class
   facet_wrap(~class, nrow = 4) +
+  
+  #labeling
   scale_fill_discrete(name = "Distractions") +
-  labs(title = "Productivity of each class",
+  labs(title = "Time Spent During Work and Subsequent Times of Distraction",
        x = "Class",
-       y = "Time spent in minutes",
-       color = "Distractions")
+       y = "Time spent in hours",
+       color = "Distraction",
+       ) + 
+  theme(legend.text = element_text(size = rel(1.5)),
+        legend.title = element_text(size = rel(2)),
+        plot.title = element_text(size = rel(2), face = "bold"),
+        axis.text = element_text(size = rel(1.5)),
+        axis.title = element_text(size = rel(1.7)),
+        strip.text.x = element_text(size = rel(2.3)))
 
 ```
 \newpage
@@ -229,27 +301,38 @@ or
   https://cran.r-project.org/web/packages/xtable/vignettes/xtableGallery.pdf
 -->
 
-My table is a summary of every individual work session and its corresponding distractions, seperated by class. The table shows the total sessions and distractions, average time per distraction and work session, and finally the proportion of time I spent each session distracted.
+My table is a summary of every individual work session and its corresponding distractions, separated by class. The table shows the total sessions and distractions, average time per distraction and work session, and finally the proportion of time I spent each session distracted.
 
 ```{r, results = 'asis'}
 # Code for table
 schoolwork_total <- schoolwork_data %>%
+  #summarize time spent
   group_by(class) %>%
-  summarise(total_time_spent = sum(duration_sec),
-            average_work = mean(duration_sec/2))
+  summarise(total_time_spent = sum(duration_hour),
+            average_work = mean(duration_hour/2))
 
 distractions_total <- distractions_data %>%
+  #summarize time spent
   group_by(class) %>%
-  summarise(total_time_distracted = sum(duration_sec),
-            average_distraction = mean(duration_sec/2))
+  summarise(total_time_distracted = sum(duration_hour),
+            average_distraction = mean(duration_hour/2))
 
+#join the two summaries
 total_summary <- schoolwork_total%>%
+  #group by class
   inner_join(distractions_total, by = c("class" = "class")) %>%
-  mutate(proportion_distracted = as.double(total_time_distracted)/as.double(total_time_spent)) %>%
+  mutate(proportion_distracted = 
+           as.double(total_time_distracted)/as.double(total_time_spent)) %>%
   arrange(desc(total_time_spent))
 
 total_summary %>%
-  kable(col.names = c("Class", "Total time spent", "Avg session", "Total time distracted", "Avg distraction", "Proportion"), digits = 2, booktabs = TRUE)
+  kable(col.names = c("Class", 
+                      "Total time spent", 
+                      "Avg session", 
+                      "Total time distracted", 
+                      "Avg distraction", 
+                      "Proportion"), 
+        digits = 2, booktabs = TRUE)
 
 ```
 
